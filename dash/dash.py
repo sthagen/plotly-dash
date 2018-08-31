@@ -89,7 +89,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             hot_reload=False,
-            hot_reload_interval=1000,
+            hot_reload_interval=3000,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
@@ -249,7 +249,11 @@ class Dash(object):
                 target=lambda: _watch.watch([self._assets_folder],
                                             self._on_assets_change,
                                             sleep_time=0.5))
+            self._watch_thread.daemon = True
             self._watch_thread.start()
+
+            if not self.server.debug:
+                self.server.debug = True
 
     @property
     def layout(self):
@@ -316,7 +320,6 @@ class Dash(object):
         }
         if self._reload_hash:
             config['hot_reload'] = {
-                'hash': self._reload_hash,
                 'interval': self._reload_interval
             }
         return config
