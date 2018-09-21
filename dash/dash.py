@@ -1097,7 +1097,8 @@ class Dash(object):
             self._watch_thread.daemon = True
             self._watch_thread.start()
 
-        if debug:
+        if debug and self._dev_tools.serve_dev_bundles:
+            # Dev bundles only works locally.
             self.scripts.config.serve_locally = True
 
         return debug
