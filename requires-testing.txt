@@ -1,0 +1,9 @@
+pytest
+pytest-sugar
+pytest-mock
+lxml
+selenium
+percy
+requests[security]
+beautifulsoup4
+waitress

@@ -1,3 +1,8 @@
+import uuid
+import collections
+import six
+
+
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():
@@ -20,21 +25,28 @@ def format_tag(tag_name, attributes, inner='', closed=False, opened=False):
             '{}="{}"'.format(k, v) for k, v in attributes.items()]))
 
 
+def generate_hash():
+    return str(uuid.uuid4().hex).strip('-')
+
+
 def get_asset_path(
         requests_pathname,
-        routes_pathname,
         asset_path,
         asset_url_path):
 
-    i = requests_pathname.rfind(routes_pathname)
-    req = requests_pathname[:i]
-
     return '/'.join([
         # Only take the first part of the pathname
-        req,
+        requests_pathname.rstrip('/'),
         asset_url_path,
         asset_path
     ])
+
+
+# pylint: disable=no-member
+def patch_collections_abc(member):
+    if six.PY2:
+        return getattr(collections, member)
+    return getattr(collections.abc, member)
 
 
 class AttributeDict(dict):
@@ -63,8 +75,28 @@ class AttributeDict(dict):
         try:
             return self[key]
         except KeyError:
-            # to conform with __getattr__ spec
-            raise AttributeError(key)
+            pass
+        # to conform with __getattr__ spec
+        # but get out of the except block so it doesn't look like a nested err
+        raise AttributeError(key)
+
+    def set_read_only(self, names, msg='Attribute is read-only'):
+        object.__setattr__(self, '_read_only', names)
+        object.__setattr__(self, '_read_only_msg', msg)
+
+    def finalize(self, msg='Object is final: No new keys may be added.'):
+        """Prevent any new keys being set"""
+        object.__setattr__(self, '_final', msg)
+
+    def __setitem__(self, key, val):
+        if key in self.__dict__.get('_read_only', []):
+            raise AttributeError(self._read_only_msg, key)
+
+        final_msg = self.__dict__.get('_final')
+        if final_msg and key not in self:
+            raise AttributeError(final_msg, key)
+
+        return super(AttributeDict, self).__setitem__(key, val)
 
     # pylint: disable=inconsistent-return-statements
     def first(self, *names):
@@ -72,3 +104,15 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
+
+
+def create_callback_id(output):
+    if isinstance(output, (list, tuple)):
+        return '..{}..'.format('...'.join(
+            '{}.{}'.format(x.component_id, x.component_property)
+            for x in output
+        ))
+
+    return '{}.{}'.format(
+        output.component_id, output.component_property
+    )
