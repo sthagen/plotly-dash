@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -34,15 +34,15 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: 🚧 pip dev requirements
+          name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -55,10 +55,14 @@ jobs:
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
             cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
       - run:
-          name: ⛑ Unit Tests
+          name: 🐍 Python Unit Tests
           command: |
             . venv/bin/activate
             PYTHONPATH=~/dash/tests/assets pytest tests/unit
+      - run:
+          name: ☕ JS Unit Tests
+          command: |
+            cd dash-renderer && npm run test:js
 
   "lint-unit-36":
       <<: *lint-unit
@@ -86,32 +90,33 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: 🚧 pip dev requirements
+          name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            sed -i '/dash-/d' requires-install.txt
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
-
       - run:
-          name: 🚧 build core
+          name: ️️🏗️ build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               python setup.py sdist && mv dist/* packages/
-              cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
-            - packages
+            - packages/*.tar.gz
 
   "build-core-36":
       <<: *build-core
@@ -138,29 +143,30 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: 🚧 pip dev requirements
+          name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
-          name: 🚧 build misc
+          name: ️️🏗️ build misc
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               git clone --depth 1 https://github.com/plotly/dash-table.git
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
-            - packages
+            - packages/*.tar.gz
 
   "build-misc-36":
       <<: *build-misc
@@ -188,14 +194,14 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
-          name: ⚙️ Run Integration Tests
+          name: 🧪 Run Integration Tests
           command: |
-            . venv/bin/activate
-            cd packages && ls -la && pip install * && cd .. && pip list | grep dash
+            . venv/bin/activate && cd packages && ls -la
+            find . -name "*.gz" | xargs pip install --ignore-installed && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
