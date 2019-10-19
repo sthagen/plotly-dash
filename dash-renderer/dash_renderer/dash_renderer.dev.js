@@ -31476,7 +31476,7 @@ var zipWith = /*#__PURE__*/Object(_internal_curry3_js__WEBPACK_IMPORTED_MODULE_0
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/** @license React v16.9.0
+/** @license React v16.10.2
  * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -31498,16 +31498,15 @@ Object.defineProperty(exports, '__esModule', { value: true });
 // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
 // nor polyfill, then a plain number is used for performance.
 var hasSymbol = typeof Symbol === 'function' && Symbol.for;
-
 var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
 var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
 var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
 var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
 var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
 var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
-var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
-// TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
+var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace; // TODO: We don't use AsyncMode or ConcurrentMode anymore. They were temporary
 // (unstable) APIs that have been removed. Can we remove the symbols?
+
 var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
 var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
 var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
@@ -31517,11 +31516,11 @@ var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
 var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
 var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
 var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
+var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
 function isValidElementType(type) {
-  return typeof type === 'string' || typeof type === 'function' ||
-  // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE);
+  return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE);
 }
 
 /**
@@ -31537,12 +31536,11 @@ function isValidElementType(type) {
  * paths. Removing the logging code for production environments will keep the
  * same logic and follow the same code paths.
  */
-
-var lowPriorityWarning = function () {};
+var lowPriorityWarningWithoutStack = function () {};
 
 {
   var printWarning = function (format) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
 
@@ -31550,9 +31548,11 @@ var lowPriorityWarning = function () {};
     var message = 'Warning: ' + format.replace(/%s/g, function () {
       return args[argIndex++];
     });
+
     if (typeof console !== 'undefined') {
       console.warn(message);
     }
+
     try {
       // --- Welcome to debugging React ---
       // This error was thrown as a convenience so that you can use this stack
@@ -31561,25 +31561,27 @@ var lowPriorityWarning = function () {};
     } catch (x) {}
   };
 
-  lowPriorityWarning = function (condition, format) {
+  lowPriorityWarningWithoutStack = function (condition, format) {
     if (format === undefined) {
-      throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
+      throw new Error('`lowPriorityWarningWithoutStack(condition, format, ...args)` requires a warning ' + 'message argument');
     }
+
     if (!condition) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
         args[_key2 - 2] = arguments[_key2];
       }
 
-      printWarning.apply(undefined, [format].concat(args));
+      printWarning.apply(void 0, [format].concat(args));
     }
   };
 }
 
-var lowPriorityWarning$1 = lowPriorityWarning;
+var lowPriorityWarningWithoutStack$1 = lowPriorityWarningWithoutStack;
 
 function typeOf(object) {
   if (typeof object === 'object' && object !== null) {
     var $$typeof = object.$$typeof;
+
     switch ($$typeof) {
       case REACT_ELEMENT_TYPE:
         var type = object.type;
@@ -31592,6 +31594,7 @@ function typeOf(object) {
           case REACT_STRICT_MODE_TYPE:
           case REACT_SUSPENSE_TYPE:
             return type;
+
           default:
             var $$typeofType = type && type.$$typeof;
 
@@ -31600,10 +31603,13 @@ function typeOf(object) {
               case REACT_FORWARD_REF_TYPE:
               case REACT_PROVIDER_TYPE:
                 return $$typeofType;
+
               default:
                 return $$typeof;
             }
+
         }
+
       case REACT_LAZY_TYPE:
       case REACT_MEMO_TYPE:
       case REACT_PORTAL_TYPE:
@@ -31612,9 +31618,8 @@ function typeOf(object) {
   }
 
   return undefined;
-}
+} // AsyncMode is deprecated along with isAsyncMode
 
-// AsyncMode is deprecated along with isAsyncMode
 var AsyncMode = REACT_ASYNC_MODE_TYPE;
 var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
 var ContextConsumer = REACT_CONTEXT_TYPE;
@@ -31628,17 +31633,16 @@ var Portal = REACT_PORTAL_TYPE;
 var Profiler = REACT_PROFILER_TYPE;
 var StrictMode = REACT_STRICT_MODE_TYPE;
 var Suspense = REACT_SUSPENSE_TYPE;
+var hasWarnedAboutDeprecatedIsAsyncMode = false; // AsyncMode should be deprecated
 
-var hasWarnedAboutDeprecatedIsAsyncMode = false;
-
-// AsyncMode should be deprecated
 function isAsyncMode(object) {
   {
     if (!hasWarnedAboutDeprecatedIsAsyncMode) {
       hasWarnedAboutDeprecatedIsAsyncMode = true;
-      lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+      lowPriorityWarningWithoutStack$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
     }
   }
+
   return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
 }
 function isConcurrentMode(object) {
@@ -35481,7 +35485,6 @@ var actionList = {
   SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
   SET_CONFIG: 'SET_CONFIG',
   ON_ERROR: 'ON_ERROR',
-  RESOLVE_ERROR: 'RESOLVE_ERROR',
   SET_HOOKS: 'SET_HOOKS'
 };
 var getAction = function getAction(action) {
@@ -35498,7 +35501,7 @@ var getAction = function getAction(action) {
 /*!******************************!*\
   !*** ./src/actions/index.js ***!
   \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setLayout, setAppLifecycle, setConfig, setHooks, onError, resolveError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setLayout, setAppLifecycle, setConfig, setHooks, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -35512,7 +35515,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setConfig", function() { return setConfig; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setHooks", function() { return setHooks; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onError", function() { return onError; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveError", function() { return resolveError; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hydrateInitialOutputs", function() { return hydrateInitialOutputs; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCSRFHeader", function() { return getCSRFHeader; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "redo", function() { return redo; });
@@ -35648,7 +35650,6 @@ var setAppLifecycle = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["create
 var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_CONFIG'));
 var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('SET_HOOKS'));
 var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('ON_ERROR'));
-var resolveError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_27__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_30__["getAction"])('RESOLVE_ERROR'));
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     triggerDefaultState(dispatch, getState);
@@ -36108,7 +36109,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
       var updatedProps = _defineProperty({}, outputProp, outputValue);
       /*
        * Update the request queue by treating a successful clientside
-       * like a succesful serverside response (200 status code)
+       * like a successful serverside response (200 status code)
        */
 
 
@@ -37289,10 +37290,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
+/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
+/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
 
 
@@ -37330,7 +37330,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
 var UnconnectedComponentErrorBoundary =
 /*#__PURE__*/
 function (_Component) {
@@ -37344,8 +37343,9 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedComponentErrorBoundary).call(this, props));
     _this.state = {
       myID: props.componentId,
-      myUID: uniqid__WEBPACK_IMPORTED_MODULE_16___default()(),
-      oldChildren: null
+      myUID: uniqid__WEBPACK_IMPORTED_MODULE_15___default()(),
+      oldChildren: null,
+      hasError: false
     };
     return _this;
   }
@@ -37354,27 +37354,25 @@ function (_Component) {
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
       var dispatch = this.props.dispatch;
-      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_17__["onError"])({
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_16__["onError"])({
         myUID: this.state.myUID,
         myID: this.state.myID,
         type: 'frontEnd',
         error: error,
         info: info
       }));
-      dispatch(_actions__WEBPACK_IMPORTED_MODULE_17__["revert"]);
+      dispatch(_actions__WEBPACK_IMPORTED_MODULE_16__["revert"]);
     }
     /* eslint-disable react/no-did-update-set-state */
 
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      var error = this.props.error;
-      var myUID = this.state.myUID;
-      var hasError = Object(ramda__WEBPACK_IMPORTED_MODULE_15__["includes"])(myUID, Object(ramda__WEBPACK_IMPORTED_MODULE_15__["pluck"])('myUID')(error.frontEnd));
+      var prevChildren = prevProps.children;
 
-      if (!hasError && prevState.oldChildren !== prevProps.children && prevProps.children !== this.props.children) {
+      if (!this.state.hasError && prevChildren !== prevState.oldChildren && prevChildren !== this.props.children) {
         this.setState({
-          oldChildren: prevProps.children
+          oldChildren: prevChildren
         });
       }
     }
@@ -37383,15 +37381,17 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var error = this.props.error;
-      var myUID = this.state.myUID;
-      var hasError = Object(ramda__WEBPACK_IMPORTED_MODULE_15__["includes"])(myUID, Object(ramda__WEBPACK_IMPORTED_MODULE_15__["pluck"])('myUID')(error.frontEnd));
-
-      if (hasError) {
-        return this.state.oldChildren;
-      }
-
-      return this.props.children;
+      var _this$state = this.state,
+          hasError = _this$state.hasError,
+          oldChildren = _this$state.oldChildren;
+      return hasError ? oldChildren : this.props.children;
+    }
+  }], [{
+    key: "getDerivedStateFromError",
+    value: function getDerivedStateFromError(_) {
+      return {
+        hasError: true
+      };
     }
   }]);
 
@@ -37564,22 +37564,10 @@ function (_Component) {
 
       var _this$props = this.props,
           e = _this$props.e,
-          resolve = _this$props.resolve,
           inAlertsTray = _this$props.inAlertsTray;
       var collapsed = this.state.collapsed;
-      var cardClasses; // if resolve is defined, the error should be a standalone card
-
-      if (resolve) {
-        cardClasses = 'dash-error-card';
-      } else {
-        cardClasses = 'dash-error-card__content';
-      }
-
-      if (inAlertsTray) {
-        cardClasses += ' dash-error-card--alerts-tray';
-      }
+      var cardClasses = 'dash-error-card__content' + (inAlertsTray ? ' dash-error-card--alerts-tray' : '');
       /* eslint-disable no-inline-comments */
-
 
       var errorHeader = React.createElement("div", {
         className: "dash-fe-error-top test-devtools-error-toggle",
@@ -37684,7 +37672,6 @@ FrontEndError.propTypes = {
     timestamp: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.object,
     error: errorPropTypes
   }),
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.func,
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.bool,
   isListItem: prop_types__WEBPACK_IMPORTED_MODULE_19___default.a.bool
 };
@@ -37795,10 +37782,11 @@ function (_Component) {
 
       var inAlertsTray = this.props.inAlertsTray;
       var cardClasses = 'dash-error-card dash-error-card--container';
-      var errorElements = this.props.errors.map(function (error) {
+      var errorElements = this.props.errors.map(function (error, i) {
         return react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_FrontEndError_react__WEBPACK_IMPORTED_MODULE_15__["FrontEndError"], {
           e: error,
-          isListItem: true
+          isListItem: true,
+          key: i
         });
       });
 
@@ -37825,7 +37813,6 @@ function (_Component) {
 
 FrontEndErrorContainer.propTypes = {
   errors: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.array,
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.func,
   inAlertsTray: prop_types__WEBPACK_IMPORTED_MODULE_14___default.a.any
 };
 FrontEndErrorContainer.propTypes = {
@@ -37873,8 +37860,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
-/* harmony import */ var _menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./menu/DebugMenu.react */ "./src/components/error/menu/DebugMenu.react.js");
+/* harmony import */ var _menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./menu/DebugMenu.react */ "./src/components/error/menu/DebugMenu.react.js");
 
 
 
@@ -37911,7 +37897,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
 var UnconnectedGlobalErrorContainer =
 /*#__PURE__*/
 function (_Component) {
@@ -37924,33 +37909,16 @@ function (_Component) {
   }
 
   _createClass(UnconnectedGlobalErrorContainer, [{
-    key: "resolveError",
-    value: function resolveError(dispatch, type, myId) {
-      if (type === 'backEnd') {
-        dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_15__["resolveError"])({
-          type: type
-        })); // dispatch(revert);
-      } else {
-        dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_15__["resolveError"])({
-          myId: myId,
-          type: type
-        }));
-      }
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
           error = _this$props.error,
-          dispatch = _this$props.dispatch,
           dependenciesRequest = _this$props.dependenciesRequest;
       return react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement("div", {
         id: "_dash-global-error-container"
-      }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_16__["DebugMenu"], {
+      }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement(_menu_DebugMenu_react__WEBPACK_IMPORTED_MODULE_15__["DebugMenu"], {
         error: error,
-        dependenciesRequest: dependenciesRequest,
-        dispatch: dispatch,
-        resolveError: this.resolveError
+        dependenciesRequest: dependenciesRequest
       }, react__WEBPACK_IMPORTED_MODULE_12___default.a.createElement("div", {
         id: "_dash-app-content"
       }, this.props.children)));
@@ -37963,17 +37931,12 @@ function (_Component) {
 UnconnectedGlobalErrorContainer.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object,
-  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.func
+  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_13___default.a.object
 };
 var GlobalErrorContainer = Object(react_redux__WEBPACK_IMPORTED_MODULE_11__["connect"])(function (state) {
   return {
     error: state.error,
     dependenciesRequest: state.dependenciesRequest
-  };
-}, function (dispatch) {
-  return {
-    dispatch: dispatch
   };
 })(Object(radium__WEBPACK_IMPORTED_MODULE_14__["default"])(UnconnectedGlobalErrorContainer));
 /* harmony default export */ __webpack_exports__["default"] = (GlobalErrorContainer);
@@ -38098,7 +38061,6 @@ function (_Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          resolve = _this$props.resolve,
           visible = _this$props.visible,
           error = _this$props.error,
           toastsEnabled = _this$props.toastsEnabled;
@@ -38107,8 +38069,7 @@ function (_Component) {
       if (toastsEnabled) {
         var errors = Object(ramda__WEBPACK_IMPORTED_MODULE_13__["concat"])(error.frontEnd, error.backEnd);
         frontEndErrors = react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement(_FrontEnd_FrontEndErrorContainer_react__WEBPACK_IMPORTED_MODULE_15__["FrontEndErrorContainer"], {
-          errors: errors,
-          resolve: resolve
+          errors: errors
         });
       }
 
@@ -38126,7 +38087,6 @@ function (_Component) {
 
 GlobalErrorOverlay.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.object,
-  resolve: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.func,
   visible: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.bool,
   error: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.object,
   toastsEnabled: prop_types__WEBPACK_IMPORTED_MODULE_12___default.a.any
@@ -38724,8 +38684,6 @@ function (_Component) {
           callbackGraphOpened = _this$state.callbackGraphOpened;
       var _this$props = this.props,
           error = _this$props.error,
-          resolveError = _this$props.resolveError,
-          dispatch = _this$props.dispatch,
           dependenciesRequest = _this$props.dependenciesRequest;
       var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
       var menuContent = opened ? react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement("div", {
@@ -38801,9 +38759,6 @@ function (_Component) {
           });
         }
       }, menuContent), react__WEBPACK_IMPORTED_MODULE_11___default.a.createElement(_GlobalErrorOverlay_react__WEBPACK_IMPORTED_MODULE_22__["default"], {
-        resolve: function resolve(type, myId) {
-          return resolveError(dispatch, type, myId);
-        },
         error: error,
         visible: !(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["isEmpty"])(error.backEnd) && Object(ramda__WEBPACK_IMPORTED_MODULE_12__["isEmpty"])(error.frontEnd)),
         toastsEnabled: toastsEnabled
@@ -38817,9 +38772,7 @@ function (_Component) {
 DebugMenu.propTypes = {
   children: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
   error: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
-  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object,
-  resolveError: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.func,
-  dispatch: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.func
+  dependenciesRequest: prop_types__WEBPACK_IMPORTED_MODULE_20___default.a.object
 };
 
 
@@ -39417,32 +39370,30 @@ var getValsKey = function getValsKey(id, persistedProp, persistence) {
 };
 
 var getProps = function getProps(layout) {
-  var props = layout.props;
+  var props = layout.props,
+      type = layout.type,
+      namespace = layout.namespace;
+
+  if (!type || !namespace) {
+    // not a real component - just need the props for recursion
+    return {
+      props: props
+    };
+  }
+
   var id = props.id,
       persistence = props.persistence;
-
-  if (!id || !persistence) {
-    // This component doesn't have persistence. To make downstream
-    // tests more efficient don't return either one, so we just have to
-    // test for truthy persistence.
-    // But we still need to return props for consumers that look for
-    // nested components
-    return {
-      props: props
-    };
-  }
-
   var element = _registry__WEBPACK_IMPORTED_MODULE_19__["default"].resolve(layout);
-  var persisted_props = props.persisted_props || element.defaultProps.persisted_props;
-  var persistence_type = props.persistence_type || element.defaultProps.persistence_type;
 
-  if (!persisted_props || !persistence_type) {
-    return {
-      props: props
-    };
-  }
+  var getVal = function getVal(prop) {
+    return props[prop] || (element.defaultProps || {})[prop];
+  };
 
+  var persisted_props = getVal('persisted_props');
+  var persistence_type = getVal('persistence_type');
+  var canPersist = id && persisted_props && persistence_type;
   return {
+    canPersist: canPersist,
     id: id,
     props: props,
     element: element,
@@ -39454,6 +39405,7 @@ var getProps = function getProps(layout) {
 
 function recordUiEdit(layout, newProps, dispatch) {
   var _getProps = getProps(layout),
+      canPersist = _getProps.canPersist,
       id = _getProps.id,
       props = _getProps.props,
       element = _getProps.element,
@@ -39461,7 +39413,7 @@ function recordUiEdit(layout, newProps, dispatch) {
       persisted_props = _getProps.persisted_props,
       persistence_type = _getProps.persistence_type;
 
-  if (!persistence) {
+  if (!canPersist || !persistence) {
     return;
   }
 
@@ -39537,6 +39489,7 @@ function modProp(key, storage, element, props, persistedProp, update, undo) {
 
 function persistenceMods(layout, component, path, dispatch) {
   var _getProps2 = getProps(component),
+      canPersist = _getProps2.canPersist,
       id = _getProps2.id,
       props = _getProps2.props,
       element = _getProps2.element,
@@ -39546,7 +39499,7 @@ function persistenceMods(layout, component, path, dispatch) {
 
   var layoutOut = layout;
 
-  if (persistence) {
+  if (canPersist && persistence) {
     var storage = getStore(persistence_type, dispatch);
     var update = {};
     Object(ramda__WEBPACK_IMPORTED_MODULE_16__["forEach"])(function (persistedProp) {
@@ -39582,6 +39535,7 @@ function persistenceMods(layout, component, path, dispatch) {
 
 function prunePersistence(layout, newProps, dispatch) {
   var _getProps3 = getProps(layout),
+      canPersist = _getProps3.canPersist,
       id = _getProps3.id,
       props = _getProps3.props,
       persistence = _getProps3.persistence,
@@ -39595,7 +39549,7 @@ function prunePersistence(layout, newProps, dispatch) {
 
   var finalPersistence = getFinal('persistence', persistence);
 
-  if (!persistence && !finalPersistence) {
+  if (!canPersist || !(persistence || finalPersistence)) {
     return newProps;
   }
 
@@ -39608,6 +39562,7 @@ function prunePersistence(layout, newProps, dispatch) {
   };
 
   var update = {};
+  var depersistedProps = props;
 
   if (persistenceChanged && persistence) {
     // clear previously-applied persistence
@@ -39615,6 +39570,7 @@ function prunePersistence(layout, newProps, dispatch) {
     Object(ramda__WEBPACK_IMPORTED_MODULE_16__["forEach"])(function (persistedProp) {
       return modProp(getValsKey(id, persistedProp, persistence), storage, element, props, persistedProp, update, UNDO);
     }, Object(ramda__WEBPACK_IMPORTED_MODULE_16__["filter"])(notInNewProps, persisted_props));
+    depersistedProps = Object(ramda__WEBPACK_IMPORTED_MODULE_16__["mergeRight"])(props, update);
   }
 
   if (finalPersistence) {
@@ -39623,7 +39579,7 @@ function prunePersistence(layout, newProps, dispatch) {
     if (persistenceChanged) {
       // apply new persistence
       Object(ramda__WEBPACK_IMPORTED_MODULE_16__["forEach"])(function (persistedProp) {
-        return modProp(getValsKey(id, persistedProp, persistence), finalStorage, element, props, persistedProp, update);
+        return modProp(getValsKey(id, persistedProp, finalPersistence), finalStorage, element, depersistedProps, persistedProp, update);
       }, Object(ramda__WEBPACK_IMPORTED_MODULE_16__["filter"])(notInNewProps, finalPersistedProps));
     } // now the main point - clear any edit of a prop that changed
     // note that this is independent of the new prop value.
@@ -39636,10 +39592,10 @@ function prunePersistence(layout, newProps, dispatch) {
 
       if (propTransforms) {
         for (var propPart in propTransforms) {
-          finalStorage.removeItem(getValsKey(id, "".concat(propName, ".").concat(propPart), persistence));
+          finalStorage.removeItem(getValsKey(id, "".concat(propName, ".").concat(propPart), finalPersistence));
         }
       } else {
-        finalStorage.removeItem(getValsKey(id, propName, persistence));
+        finalStorage.removeItem(getValsKey(id, propName, finalPersistence));
       }
     }
   }
@@ -39887,6 +39843,7 @@ var graphs = function graphs() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return error; });
 /* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.symbol */ "./node_modules/core-js/modules/es.symbol.js");
 /* harmony import */ var core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_symbol__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var core_js_modules_es_symbol_description__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.symbol.description */ "./node_modules/core-js/modules/es.symbol.description.js");
@@ -39938,7 +39895,6 @@ var initialError = {
   frontEnd: [],
   backEnd: []
 };
-
 function error() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialError;
   var action = arguments.length > 1 ? arguments[1] : undefined;
@@ -39965,34 +39921,12 @@ function error() {
         return state;
       }
 
-    case 'RESOLVE_ERROR':
-      {
-        if (action.payload.type === 'frontEnd') {
-          var removeIdx = Object(ramda__WEBPACK_IMPORTED_MODULE_12__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["propEq"])('myUID', action.payload.myUID))(state.frontEnd);
-          return {
-            frontEnd: Object(ramda__WEBPACK_IMPORTED_MODULE_12__["remove"])(removeIdx, 1, state.frontEnd),
-            backEnd: state.backEnd
-          };
-        } else if (action.payload.type === 'backEnd') {
-          var _removeIdx = Object(ramda__WEBPACK_IMPORTED_MODULE_12__["findIndex"])(Object(ramda__WEBPACK_IMPORTED_MODULE_12__["propEq"])('myUID', action.payload.myUID))(state.backEnd);
-
-          return {
-            frontEnd: state.frontEnd,
-            backEnd: Object(ramda__WEBPACK_IMPORTED_MODULE_12__["remove"])(_removeIdx, 1, state.backEnd)
-          };
-        }
-
-        return state;
-      }
-
     default:
       {
         return state;
       }
   }
 }
-
-/* harmony default export */ __webpack_exports__["default"] = (error);
 
 /***/ }),
 
