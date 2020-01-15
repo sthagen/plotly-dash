@@ -2719,91 +2719,6 @@ function isnan (val) {
 
 /***/ }),
 
-/***/ "./node_modules/check-prop-types/index.js":
-/*!************************************************!*\
-  !*** ./node_modules/check-prop-types/index.js ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-/**
- * Copyright Facebook, ratehub.
- * All rights reserved.
- *
- * This code is intended to closely match the behaviour of checkPropTypes() from
- * facebook/prop-types. The license for that code can be found here:
- * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/LICENSE
- *
- * That function's source:
- * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/checkPropTypes.js
- */
-
-/**
- * Check if the values match with the type specs
- * Return a type error message or null
- *
- * @param {object} typeSpecs Map of name to a ReactPropType
- * @param {object} values Runtime values that need to be type-checked
- * @param {string} location e.g. "prop", "context", "child context"
- * @param {string} componentName Name of the component for error messages.
- * @param {?Function} getStack Returns the component stack.
- */
-function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
-  if (true) {
-    var ReactPropTypesSecret = __webpack_require__(/*! prop-types/lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
-
-    var name = componentName || 'React class';
-
-    for (var typeSpecName in typeSpecs) {
-      if (typeSpecs.hasOwnProperty(typeSpecName)) {
-        var error;
-
-        if (typeof typeSpecs[typeSpecName] !== 'function') {
-          return name + ': ' + location + ' type `' + typeSpecName + '` is ' + 'invalid; it must be a function, usually from React.PropTypes.';
-        } else {
-          // Prop type validation may throw. In case they do, catch and save the
-          // exception as the error.
-          try {
-            error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
-          } catch (ex) {
-            error = ex;
-          }
-        }
-
-        if (error && !(error instanceof Error)) {
-          return name + ': type specification of ' + location + ' `' + typeSpecName + '` is invalid; the type checker function must ' + 'return `null` or an `Error` but returned a ' + _typeof(error) + '. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).';
-        }
-
-        if (error instanceof Error) {
-          var stack = getStack && getStack() || '';
-          return 'Failed ' + location + ' type: ' + error.message + stack;
-        }
-      }
-    }
-  }
-}
-/**
- * Same as checkPropTypes but throws on error
- */
-
-
-function assertPropTypes() {
-  if (true) {
-    var error = checkPropTypes.apply(null, arguments);
-
-    if (error) {
-      throw new Error(error);
-    }
-  }
-}
-
-module.exports = checkPropTypes;
-module.exports.assertPropTypes = assertPropTypes;
-
-/***/ }),
-
 /***/ "./node_modules/cookie/index.js":
 /*!**************************************!*\
   !*** ./node_modules/cookie/index.js ***!
@@ -3085,7 +3000,7 @@ exports.push([module.i, ".dash-callback-dag--container {\n    border-radius: 4px
 
 exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js")(false);
 // Module
-exports.push([module.i, ".error-container {\n    margin-top: 10px;\n}\n\n.dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error-top {\n    height: 20px;\n    display: flex;\n    justify-content: space-between;\n    width: 100%;\n    cursor: pointer;\n}\n.dash-fe-error-top__group:first-child {\n    /*\n     * 77% is the maximum space allowed based off of the other elements\n     * in the top part of the error container (timestamp & collapse arrow).\n     * this was manually determined */\n    width: 77%;\n}\n.dash-fe-error-top__group {\n    display: inline-flex;\n    align-items: center;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    margin-left: 5px;\n    padding: 0px;\n    font-size: 14px;\n    display: inline-block;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    overflow: hidden;\n}\n.dash-fe-error__timestamp {\n    margin-right: 20px;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__info_title {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    padding: 10px;\n}\n\n.dash-fe-error__info {\n    border: 1px solid #dfe8f3;\n    margin: 0 0 1em 0;\n    padding: 10px;\n\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    color: #506784;\n    overflow: auto;\n    white-space: pre-wrap;\n}\n\n.dash-fe-error__curved {\n    border-radius: 4px;\n}\n\n.dash-fe-error__curved-top {\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    border-bottom-width: 0px;\n}\n\n.dash-fe-error__curved-bottom {\n    border-radius-bottom-left: 4px;\n    border-radius-bottom-right: 4px;\n    background-color: #FFEFEF;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n", ""]);
+exports.push([module.i, ".error-container {\n    margin-top: 10px;\n}\n\n.dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error-top {\n    height: 20px;\n    display: flex;\n    justify-content: space-between;\n    width: 100%;\n    cursor: pointer;\n}\n.dash-fe-error-top__group:first-child {\n    /*\n     * 77% is the maximum space allowed based off of the other elements\n     * in the top part of the error container (timestamp & collapse arrow).\n     * this was manually determined */\n    width: 77%;\n}\n.dash-fe-error-top__group {\n    display: inline-flex;\n    align-items: center;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    margin-left: 5px;\n    padding: 0px;\n    font-size: 14px;\n    display: inline-block;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n    overflow: hidden;\n}\n.dash-fe-error__timestamp {\n    margin-right: 20px;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__info_title {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    padding: 10px;\n}\n\n.dash-fe-error__info {\n    border: 1px solid #dfe8f3;\n    margin: 0 0 1em 0;\n    padding: 10px;\n\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    color: #506784;\n    overflow: auto;\n    white-space: pre-wrap;\n}\n\n.dash-fe-error__curved {\n    border-radius: 4px;\n}\n\n.dash-fe-error__curved-top {\n    border-top-left-radius: 4px;\n    border-top-right-radius: 4px;\n    border-bottom-width: 0px;\n}\n\n.dash-fe-error__curved-bottom {\n    border-radius-bottom-left: 4px;\n    border-radius-bottom-right: 4px;\n    background-color: #FFEFEF;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n\n.dash-be-error__str {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    overflow: auto;\n    display: inline-block;\n    white-space: pre-wrap;\n}\n", ""]);
 
 
 /***/ }),
@@ -28692,60 +28607,6 @@ function symbolObservablePonyfill(root) {
 
 /***/ }),
 
-/***/ "./node_modules/uniqid/index.js":
-/*!**************************************!*\
-  !*** ./node_modules/uniqid/index.js ***!
-  \**************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process) {/* 
-(The MIT License)
-Copyright (c) 2014-2019 Halász Ádám <mail@adamhalasz.com>
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-//  Unique Hexatridecimal ID Generator
-// ================================================
-//  Dependencies
-// ================================================
-var pid = process && process.pid ? process.pid.toString(36) : '';
-var address = '';
-
-if (false) { var i, length, networkInterface, interface_key, mac, networkInterfaces; } //  Exports
-// ================================================
-
-
-module.exports = module.exports["default"] = function () {
-  var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var suffix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-  return prefix + address + pid + now().toString(36) + suffix;
-};
-
-module.exports.process = function () {
-  var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var suffix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-  return prefix + pid + now().toString(36) + suffix;
-};
-
-module.exports.time = function () {
-  var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-  var suffix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-  return prefix + now().toString(36) + suffix;
-}; //  Helpers
-// ================================================
-
-
-function now() {
-  var time = Date.now();
-  var last = now.last || time;
-  return now.last = time > last ? time : last + 1;
-}
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../process/browser.js */ "./node_modules/process/browser.js")))
-
-/***/ }),
-
 /***/ "./node_modules/viz.js/viz.js":
 /*!************************************!*\
   !*** ./node_modules/viz.js/viz.js ***!
@@ -29629,7 +29490,6 @@ function (_Component) {
         if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isEmpty"])(layout)) {
           var finalLayout = Object(_persistence__WEBPACK_IMPORTED_MODULE_7__["applyPersistence"])(layoutRequest.content, dispatch);
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["setLayout"])(finalLayout));
-          dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["setAppIsReady"])());
         } else if (Object(ramda__WEBPACK_IMPORTED_MODULE_1__["isNil"])(paths)) {
           dispatch(Object(_actions_index__WEBPACK_IMPORTED_MODULE_6__["computePaths"])({
             subTree: layout,
@@ -29969,8 +29829,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./isSimpleComponent */ "./src/isSimpleComponent.js");
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./persistence */ "./src/persistence.js");
 /* harmony import */ var _components_error_ComponentErrorBoundary_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/error/ComponentErrorBoundary.react */ "./src/components/error/ComponentErrorBoundary.react.js");
-/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! check-prop-types */ "./node_modules/check-prop-types/index.js");
-/* harmony import */ var check_prop_types__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(check_prop_types__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var _checkPropTypes__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./checkPropTypes */ "./src/checkPropTypes.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -30041,7 +29900,7 @@ function CheckedComponent(p) {
       props = p.props,
       children = p.children,
       type = p.type;
-  var errorMessage = check_prop_types__WEBPACK_IMPORTED_MODULE_10___default()(element.propTypes, props, 'component prop', element);
+  var errorMessage = Object(_checkPropTypes__WEBPACK_IMPORTED_MODULE_10__["default"])(element.propTypes, props, 'component prop', element);
 
   if (errorMessage) {
     Object(_exceptions__WEBPACK_IMPORTED_MODULE_3__["propTypeErrorHandler"])(errorMessage, props, type);
@@ -30391,8 +30250,7 @@ var actionList = {
   SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
   SET_CONFIG: 'SET_CONFIG',
   ON_ERROR: 'ON_ERROR',
-  SET_HOOKS: 'SET_HOOKS',
-  SET_APP_READY: 'SET_APP_READY'
+  SET_HOOKS: 'SET_HOOKS'
 };
 var getAction = function getAction(action) {
   if (actionList[action]) {
@@ -30408,7 +30266,7 @@ var getAction = function getAction(action) {
 /*!******************************!*\
   !*** ./src/actions/index.js ***!
   \******************************/
-/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, setAppIsReady, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
+/*! exports provided: updateProps, setRequestQueue, computeGraphs, computePaths, setAppLifecycle, setConfig, setHooks, setLayout, onError, hydrateInitialOutputs, getCSRFHeader, redo, undo, revert, notifyObservers, handleAsyncError, serialize */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -30441,9 +30299,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils */ "./src/utils.js");
 /* harmony import */ var _constants_constants__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
 /* harmony import */ var _persistence__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../persistence */ "./src/persistence.js");
-/* harmony import */ var _setAppReadyState__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setAppReadyState */ "./src/actions/setAppReadyState.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "setAppIsReady", function() { return _setAppReadyState__WEBPACK_IMPORTED_MODULE_9__["default"]; });
-
+/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./isAppReady */ "./src/actions/isAppReady.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -30482,7 +30338,6 @@ var setConfig = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"
 var setHooks = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_HOOKS'));
 var setLayout = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_LAYOUT'));
 var onError = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('ON_ERROR'));
-
 function hydrateInitialOutputs() {
   return function (dispatch, getState) {
     triggerDefaultState(dispatch, getState);
@@ -30632,24 +30487,14 @@ function reduceInputIds(nodeIds, InputGraph) {
 
 function notifyObservers(payload) {
   return function _callee(dispatch, getState) {
-    var id, props, excludedOutputs, _getState2, graphs, isAppReady, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, newRequestQueue, promises, i, outputIdAndProp, requestUid;
+    var id, props, excludedOutputs, _getState2, dependenciesRequest, graphs, layout, paths, requestQueue, InputGraph, outputObservers, changedProps, depOrder, queuedObservers, deps, ids, newRequestQueue, promises, i, outputIdAndProp, requestUid;
 
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             id = payload.id, props = payload.props, excludedOutputs = payload.excludedOutputs;
-            _getState2 = getState(), graphs = _getState2.graphs, isAppReady = _getState2.isAppReady, requestQueue = _getState2.requestQueue;
-
-            if (!(isAppReady !== true)) {
-              _context.next = 5;
-              break;
-            }
-
-            _context.next = 5;
-            return regeneratorRuntime.awrap(isAppReady);
-
-          case 5:
+            _getState2 = getState(), dependenciesRequest = _getState2.dependenciesRequest, graphs = _getState2.graphs, layout = _getState2.layout, paths = _getState2.paths, requestQueue = _getState2.requestQueue;
             InputGraph = graphs.InputGraph;
             /*
              * Figure out all of the output id's that depend on this input.
@@ -30687,13 +30532,13 @@ function notifyObservers(payload) {
             }
 
             if (!Object(ramda__WEBPACK_IMPORTED_MODULE_0__["isEmpty"])(outputObservers)) {
-              _context.next = 12;
+              _context.next = 9;
               break;
             }
 
             return _context.abrupt("return");
 
-          case 12:
+          case 9:
             /*
              * There may be several components that depend on this input.
              * And some components may depend on other components before
@@ -30780,12 +30625,35 @@ function notifyObservers(payload) {
                 queuedObservers.push(outputIdAndProp);
               }
             });
+            /**
+             * Determine the id of all components used as input or state in the callbacks
+             * triggered by the props change.
+             *
+             * Wait for all components associated to these ids to be ready before initiating
+             * the callbacks.
+             */
+
+            deps = queuedObservers.map(function (output) {
+              return dependenciesRequest.content.find(function (dependency) {
+                return dependency.output === output;
+              });
+            });
+            ids = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["uniq"])(Object(ramda__WEBPACK_IMPORTED_MODULE_0__["flatten"])(deps.map(function (dep) {
+              return [dep.inputs.map(function (input) {
+                return input.id;
+              }), dep.state.map(function (state) {
+                return state.id;
+              })];
+            })));
+            _context.next = 17;
+            return regeneratorRuntime.awrap(Object(_isAppReady__WEBPACK_IMPORTED_MODULE_9__["default"])(layout, paths, ids));
+
+          case 17:
             /*
              * record the set of output IDs that will eventually need to be
              * updated in a queue. not all of these requests will be fired in this
              * action
              */
-
             newRequestQueue = queuedObservers.map(function (i) {
               return {
                 controllerId: i,
@@ -30809,7 +30677,7 @@ function notifyObservers(payload) {
 
             return _context.abrupt("return", Promise.all(promises));
 
-          case 21:
+          case 22:
           case "end":
             return _context.stop();
         }
@@ -31277,8 +31145,6 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
               updateOutput(idAndProp, getState, requestUid, dispatch, changedPropIds);
             });
           }
-
-          dispatch(Object(_setAppReadyState__WEBPACK_IMPORTED_MODULE_9__["default"])());
         }
       };
 
@@ -31338,139 +31204,116 @@ function serialize(state) {
 
 /***/ }),
 
-/***/ "./src/actions/setAppReadyState.js":
-/*!*****************************************!*\
-  !*** ./src/actions/setAppReadyState.js ***!
-  \*****************************************/
+/***/ "./src/actions/isAppReady.js":
+/*!***********************************!*\
+  !*** ./src/actions/isAppReady.js ***!
+  \***********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
-/* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _isSimpleComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../isSimpleComponent */ "./src/isSimpleComponent.js");
-/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../registry */ "./src/registry.js");
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./constants */ "./src/actions/constants.js");
-/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/dist/index.js");
-/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__);
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @plotly/dash-component-plugins */ "./node_modules/@plotly/dash-component-plugins/dist/index.js");
+/* harmony import */ var _plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../registry */ "./src/registry.js");
 
 
 
+/* harmony default export */ __webpack_exports__["default"] = (function (layout, paths, targets) {
+  var promises = [];
+  targets.forEach(function (id) {
+    var pathOfId = paths[id];
 
-
-
-
-
-var isAppReady = function isAppReady(layout) {
-  var queue = [layout];
-  var res = {};
-  /* Would be much simpler if the Registry was aware of what it contained... */
-
-  while (queue.length) {
-    var elementLayout = queue.shift();
-
-    if (!elementLayout) {
-      continue;
+    if (!pathOfId) {
+      return;
     }
 
-    var children = elementLayout.props && elementLayout.props.children;
-    var namespace = elementLayout.namespace;
-    var type = elementLayout.type;
-    res[namespace] = res[namespace] || {};
-    res[namespace][type] = type;
+    var target = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["path"])(pathOfId, layout);
 
-    if (children) {
-      var filteredChildren = Object(ramda__WEBPACK_IMPORTED_MODULE_0__["filter"])(function (child) {
-        return !Object(_isSimpleComponent__WEBPACK_IMPORTED_MODULE_2__["default"])(child);
-      }, Array.isArray(children) ? children : [children]);
-      queue.push.apply(queue, _toConsumableArray(filteredChildren));
+    if (!target) {
+      return;
+    }
+
+    var component = _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(target);
+    var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_1__["isReady"])(component);
+
+    if (ready && typeof ready.then === 'function') {
+      promises.push(ready);
+    }
+  });
+  return promises.length ? Promise.all(promises) : true;
+});
+
+/***/ }),
+
+/***/ "./src/checkPropTypes.js":
+/*!*******************************!*\
+  !*** ./src/checkPropTypes.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return checkPropTypes; });
+/* harmony import */ var prop_types_lib_ReactPropTypesSecret__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! prop-types/lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
+/* harmony import */ var prop_types_lib_ReactPropTypesSecret__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(prop_types_lib_ReactPropTypesSecret__WEBPACK_IMPORTED_MODULE_0__);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/*
+ * Copied out of prop-types and modified - inspired by check-prop-types, but
+ * simplified and tweaked to our needs: we don't need the NODE_ENV check,
+ * we report all errors, not just the first one, and we don't need the throwing
+ * variant `assertPropTypes`.
+ */
+
+/**
+ * Assert that the values match with the type specs.
+ *
+ * @param {object} typeSpecs Map of name to a ReactPropType
+ * @param {object} values Runtime values that need to be type-checked
+ * @param {string} location e.g. "prop", "context", "child context"
+ * @param {string} componentName Name of the component for error messages.
+ * @param {?Function} getStack Returns the component stack.
+ * @return {string} Any error messsage resulting from checking the types
+ */
+
+function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+  var errors = [];
+
+  for (var typeSpecName in typeSpecs) {
+    if (typeSpecs.hasOwnProperty(typeSpecName)) {
+      var error = void 0; // Prop type validation may throw. In case they do, we don't want to
+      // fail the render phase where it didn't fail before. So we log it.
+      // After these have been cleaned up, we'll let them throw.
+
+      try {
+        // This is intentionally an invariant that gets caught. It's the same
+        // behavior as without this statement except with a better message.
+        if (typeof typeSpecs[typeSpecName] !== 'function') {
+          error = Error((componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' + 'it must be a function, usually from the `prop-types` package, but received `' + _typeof(typeSpecs[typeSpecName]) + '`.');
+          error.name = 'Invariant Violation';
+        } else {
+          error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, prop_types_lib_ReactPropTypesSecret__WEBPACK_IMPORTED_MODULE_0___default.a);
+        }
+      } catch (ex) {
+        error = ex;
+      }
+
+      if (error && !(error instanceof Error)) {
+        errors.push((componentName || 'React class') + ': type specification of ' + location + ' `' + typeSpecName + '` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a ' + _typeof(error) + '. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).');
+      }
+
+      if (error instanceof Error) {
+        var stack = getStack && getStack() || '';
+        errors.push('Failed ' + location + ' type: ' + error.message + stack);
+      }
     }
   }
 
-  var promises = [];
-  Object.entries(res).forEach(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        namespace = _ref2[0],
-        item = _ref2[1];
-
-    Object.entries(item).forEach(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 1),
-          type = _ref4[0];
-
-      var component = _registry__WEBPACK_IMPORTED_MODULE_3__["default"].resolve({
-        namespace: namespace,
-        type: type
-      });
-      var ready = Object(_plotly_dash_component_plugins__WEBPACK_IMPORTED_MODULE_5__["isReady"])(component);
-
-      if (ready && typeof ready.then === 'function') {
-        promises.push(ready);
-      }
-    });
-  });
-  return promises.length ? Promise.all(promises) : true;
-};
-
-var setAction = Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])(Object(_constants__WEBPACK_IMPORTED_MODULE_4__["getAction"])('SET_APP_READY'));
-/* harmony default export */ __webpack_exports__["default"] = (function () {
-  return function _callee(dispatch, getState) {
-    var ready;
-    return regeneratorRuntime.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            ready = isAppReady(getState().layout);
-
-            if (!(ready === true)) {
-              _context.next = 5;
-              break;
-            }
-
-            /* All async is ready */
-            dispatch(setAction(true));
-            _context.next = 9;
-            break;
-
-          case 5:
-            /* Waiting on async */
-            dispatch(setAction(ready));
-            _context.next = 8;
-            return regeneratorRuntime.awrap(ready);
-
-          case 8:
-            /**
-             * All known async is ready.
-             *
-             * Callbacks were blocked while waiting, we can safely
-             * assume that no update to layout happened to invalidate.
-             */
-            dispatch(setAction(true));
-
-          case 9:
-          case "end":
-            return _context.stop();
-        }
-      }
-    });
-  };
-});
+  return errors.join('\n\n');
+}
 
 /***/ }),
 
@@ -32154,9 +31997,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "prop-types");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var radium__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32181,7 +32022,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
 var UnconnectedComponentErrorBoundary =
 /*#__PURE__*/
 function (_Component) {
@@ -32195,7 +32035,6 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UnconnectedComponentErrorBoundary).call(this, props));
     _this.state = {
       myID: props.componentId,
-      myUID: uniqid__WEBPACK_IMPORTED_MODULE_4___default()(),
       oldChildren: null,
       hasError: false
     };
@@ -32206,14 +32045,13 @@ function (_Component) {
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
       var dispatch = this.props.dispatch;
-      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_5__["onError"])({
-        myUID: this.state.myUID,
+      dispatch(Object(_actions__WEBPACK_IMPORTED_MODULE_4__["onError"])({
         myID: this.state.myID,
         type: 'frontEnd',
         error: error,
         info: info
       }));
-      dispatch(_actions__WEBPACK_IMPORTED_MODULE_5__["revert"]);
+      dispatch(_actions__WEBPACK_IMPORTED_MODULE_4__["revert"]);
     }
     /* eslint-disable react/no-did-update-set-state */
 
@@ -32318,7 +32156,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Percy_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Percy.css */ "./src/components/error/Percy.css");
 /* harmony import */ var _Percy_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_Percy_css__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../utils */ "./src/utils.js");
-/* harmony import */ var _werkzeug_css_txt__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../werkzeug.css.txt */ "./src/components/error/werkzeug.css.txt");
+/* harmony import */ var _werkzeugcss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../werkzeugcss */ "./src/components/error/werkzeugcss.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32432,12 +32270,12 @@ function UnconnectedErrorContent(_ref) {
     className: "dash-fe-error__info"
   }, React.createElement("details", null, React.createElement("summary", null, React.createElement("i", null, "(This error originated from the built-in JavaScript code that runs Dash apps. Click to see the full stack trace or open your browser's console.)")), error.stack.split('\n').map(function (line) {
     return React.createElement("p", null, line);
-  })))), typeof error.html !== 'string' ? null : React.createElement("div", {
+  })))), typeof error.html !== 'string' ? null : error.html.indexOf('<!DOCTYPE HTML') === 0 ? React.createElement("div", {
     className: "dash-be-error__st"
   }, React.createElement("div", {
     className: "dash-backend-error"
   }, React.createElement("iframe", {
-    srcDoc: error.html.replace('</head>', "<style type=\"text/css\">".concat(_werkzeug_css_txt__WEBPACK_IMPORTED_MODULE_7__["default"], "</style></head>")).replace('="?__debugger__', "=\"".concat(base, "?__debugger__")),
+    srcDoc: error.html.replace('</head>', "<style type=\"text/css\">".concat(_werkzeugcss__WEBPACK_IMPORTED_MODULE_7__["default"], "</style></head>")).replace('="?__debugger__', "=\"".concat(base, "?__debugger__")),
     style: {
       /*
        * 67px of padding and margin between this
@@ -32449,7 +32287,11 @@ function UnconnectedErrorContent(_ref) {
       height: '75vh',
       border: 'none'
     }
-  }))));
+  }))) : React.createElement("div", {
+    className: "dash-be-error__str"
+  }, React.createElement("div", {
+    className: "dash-backend-error"
+  }, error.html)));
 }
 /* eslint-enable no-inline-comments, no-magic-numbers */
 
@@ -32474,7 +32316,6 @@ var ErrorContent = Object(react_redux__WEBPACK_IMPORTED_MODULE_0__["connect"])(f
 })(UnconnectedErrorContent);
 FrontEndError.propTypes = {
   e: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.shape({
-    myUID: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.string,
     timestamp: prop_types__WEBPACK_IMPORTED_MODULE_4___default.a.object,
     error: errorPropTypes
   }),
@@ -33411,16 +33252,18 @@ DebugMenu.propTypes = {
 
 /***/ }),
 
-/***/ "./src/components/error/werkzeug.css.txt":
-/*!***********************************************!*\
-  !*** ./src/components/error/werkzeug.css.txt ***!
-  \***********************************************/
+/***/ "./src/components/error/werkzeugcss.js":
+/*!*********************************************!*\
+  !*** ./src/components/error/werkzeugcss.js ***!
+  \*********************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("body {\n    margin: 0px;\n    margin-top: 10px;\n}\n\n.error-container {\n    font-family: Roboto;\n}\n\n.traceback {\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    border-radius: 0px 0px 4px 4px;\n    color: #506784;\n}\n\nh2.traceback {\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    border-bottom: 0px;\n    box-sizing: border-box;\n    border-radius: 4px 4px 0px 0px;\n    color: #506784;\n}\n\nh2.traceback em {\n    color: #506784;\n    font-weight: 100;\n}\n\n.traceback pre, .debugger textarea {\n    background-color: #F3F6FA;\n}\n\n.debugger h1 {\n    color: #506784;\n    font-family: Roboto;\n}\n\n.explanation {\n    color: #A2B1C6;\n}\n\n/* Hide the Don't Panic! footer */\n.debugger .footer {\n    display: none;\n}\n\n/* Hide all of the Dash traceback stuff that leads up to the call */\n.line.before {\n    display: none;\n}\n\ndiv.debugger {\n    padding: 0px;\n}\n\n.debugger h1 {\n    display: none;\n}\n\n.debugger .errormsg {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-radius: 4px;\n    padding: 10px;\n}\n\n.debugger .pastemessage input {\n    display: none;\n}\n\n.debugger .explanation {\n    display: none;\n}\n\n.debugger div.plain {\n    border-radius: 4px;\n    border-width: 2px;\n    color: #506784;\n}\n\n.plain {\n    display: block !important;\n}\n.plain > form > p {\n    display: none;\n}\n.plain pre {\n    padding: 15px !important;\n    overflow-x: scroll;\n}\n\n.debugger div.traceback pre {\n    cursor: default;\n}\n\n.debugger .traceback .source pre.line img {\n    display: none;\n}\n");
+// Werkzeug css included as a string, because we want to inject
+// it into an iframe srcDoc
+/* harmony default export */ __webpack_exports__["default"] = ("\nbody {\n    margin: 0px;\n    margin-top: 10px;\n}\n\n.error-container {\n    font-family: Roboto;\n}\n\n.traceback {\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    border-radius: 0px 0px 4px 4px;\n    color: #506784;\n}\n\nh2.traceback {\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    border-bottom: 0px;\n    box-sizing: border-box;\n    border-radius: 4px 4px 0px 0px;\n    color: #506784;\n}\n\nh2.traceback em {\n    color: #506784;\n    font-weight: 100;\n}\n\n.traceback pre, .debugger textarea {\n    background-color: #F3F6FA;\n}\n\n.debugger h1 {\n    color: #506784;\n    font-family: Roboto;\n}\n\n.explanation {\n    color: #A2B1C6;\n}\n\n/* Hide the Don't Panic! footer */\n.debugger .footer {\n    display: none;\n}\n\n/* Hide all of the Dash traceback stuff that leads up to the call */\n.line.before {\n    display: none;\n}\n\ndiv.debugger {\n    padding: 0px;\n}\n\n.debugger h1 {\n    display: none;\n}\n\n.debugger .errormsg {\n    margin: 0;\n    color: #506784;\n    font-size: 16px;\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    box-sizing: border-box;\n    border-radius: 4px;\n    padding: 10px;\n}\n\n.debugger .pastemessage input {\n    display: none;\n}\n\n.debugger .explanation {\n    display: none;\n}\n\n.debugger div.plain {\n    border-radius: 4px;\n    border-width: 2px;\n    color: #506784;\n}\n\n.plain {\n    display: block !important;\n}\n.plain > form > p {\n    display: none;\n}\n.plain pre {\n    padding: 15px !important;\n    overflow-x: scroll;\n}\n\n.debugger div.traceback pre {\n    cursor: default;\n}\n\n.debugger .traceback .source pre.line img {\n    display: none;\n}\n");
 
 /***/ }),
 
@@ -33622,9 +33465,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-actions */ "./node_modules/redux-actions/lib/index.js");
 /* harmony import */ var redux_actions__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redux_actions__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! uniqid */ "./node_modules/uniqid/index.js");
-/* harmony import */ var uniqid__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(uniqid__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./registry */ "./src/registry.js");
+/* harmony import */ var _registry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./registry */ "./src/registry.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -33698,7 +33539,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 
-
 var storePrefix = '_dash_persistence.';
 
 function err(e) {
@@ -33710,7 +33550,6 @@ function err(e) {
   /* eslint-disable no-console */
 
   return Object(redux_actions__WEBPACK_IMPORTED_MODULE_1__["createAction"])('ON_ERROR')({
-    myUID: uniqid__WEBPACK_IMPORTED_MODULE_2___default()(),
     myID: storePrefix,
     type: 'frontEnd',
     error: error
@@ -33973,7 +33812,7 @@ var getProps = function getProps(layout) {
 
   var id = props.id,
       persistence = props.persistence;
-  var element = _registry__WEBPACK_IMPORTED_MODULE_3__["default"].resolve(layout);
+  var element = _registry__WEBPACK_IMPORTED_MODULE_2__["default"].resolve(layout);
 
   var getVal = function getVal(prop) {
     return props[prop] || (element.defaultProps || {})[prop];
@@ -34585,31 +34424,6 @@ var customHooks = function customHooks() {
 
 /***/ }),
 
-/***/ "./src/reducers/isAppReady.js":
-/*!************************************!*\
-  !*** ./src/reducers/isAppReady.js ***!
-  \************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return config; });
-/* harmony import */ var _actions_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/constants */ "./src/actions/constants.js");
-
-function config() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-
-  if (action.type === Object(_actions_constants__WEBPACK_IMPORTED_MODULE_0__["getAction"])('SET_APP_READY')) {
-    return action.payload;
-  }
-
-  return state;
-}
-
-/***/ }),
-
 /***/ "./src/reducers/layout.js":
 /*!********************************!*\
   !*** ./src/reducers/layout.js ***!
@@ -34720,17 +34534,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createReducer", function() { return createReducer; });
 /* harmony import */ var ramda__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ramda */ "./node_modules/ramda/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/index.js");
-/* harmony import */ var _isAppReady__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./isAppReady */ "./src/reducers/isAppReady.js");
-/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
-/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
-/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
-/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
-/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
-/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
-/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
-/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
-/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./layout */ "./src/reducers/layout.js");
+/* harmony import */ var _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./dependencyGraph */ "./src/reducers/dependencyGraph.js");
+/* harmony import */ var _paths__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./paths */ "./src/reducers/paths.js");
+/* harmony import */ var _requestQueue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./requestQueue */ "./src/reducers/requestQueue.js");
+/* harmony import */ var _appLifecycle__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./appLifecycle */ "./src/reducers/appLifecycle.js");
+/* harmony import */ var _history__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./history */ "./src/reducers/history.js");
+/* harmony import */ var _error__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./error */ "./src/reducers/error.js");
+/* harmony import */ var _hooks__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
+/* harmony import */ var _api__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./config */ "./src/reducers/config.js");
 
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
@@ -34753,24 +34566,22 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 
-
 var apiRequests = ['dependenciesRequest', 'layoutRequest', 'reloadRequest', 'loginRequest'];
 
 function mainReducer() {
   var parts = {
-    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_7__["default"],
-    isAppReady: _isAppReady__WEBPACK_IMPORTED_MODULE_2__["default"],
-    layout: _layout__WEBPACK_IMPORTED_MODULE_3__["default"],
-    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_4__["default"],
-    paths: _paths__WEBPACK_IMPORTED_MODULE_5__["default"],
-    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_6__["default"],
-    config: _config__WEBPACK_IMPORTED_MODULE_12__["default"],
-    history: _history__WEBPACK_IMPORTED_MODULE_8__["default"],
-    error: _error__WEBPACK_IMPORTED_MODULE_9__["default"],
-    hooks: _hooks__WEBPACK_IMPORTED_MODULE_10__["default"]
+    appLifecycle: _appLifecycle__WEBPACK_IMPORTED_MODULE_6__["default"],
+    layout: _layout__WEBPACK_IMPORTED_MODULE_2__["default"],
+    graphs: _dependencyGraph__WEBPACK_IMPORTED_MODULE_3__["default"],
+    paths: _paths__WEBPACK_IMPORTED_MODULE_4__["default"],
+    requestQueue: _requestQueue__WEBPACK_IMPORTED_MODULE_5__["default"],
+    config: _config__WEBPACK_IMPORTED_MODULE_11__["default"],
+    history: _history__WEBPACK_IMPORTED_MODULE_7__["default"],
+    error: _error__WEBPACK_IMPORTED_MODULE_8__["default"],
+    hooks: _hooks__WEBPACK_IMPORTED_MODULE_9__["default"]
   };
   Object(ramda__WEBPACK_IMPORTED_MODULE_0__["forEach"])(function (r) {
-    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_11__["default"])(r);
+    parts[r] = Object(_api__WEBPACK_IMPORTED_MODULE_10__["default"])(r);
   }, apiRequests);
   return Object(redux__WEBPACK_IMPORTED_MODULE_1__["combineReducers"])(parts);
 }

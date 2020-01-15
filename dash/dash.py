@@ -36,6 +36,8 @@ from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
 from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
+from ._utils import get_relative_path as _get_relative_path
+from ._utils import strip_relative_path as _strip_relative_path
 from ._configs import get_combined_config, pathname_configs
 from .version import __version__
 
@@ -306,6 +308,9 @@ class Dash(object):
 
         # list of dependencies
         self.callback_map = {}
+
+        # list of inline scripts
+        self._inline_scripts = []
 
         # index_string has special setter so can't go in config
         self._index_string = ""
@@ -636,6 +641,10 @@ class Dash(object):
                 if isinstance(src, dict)
                 else '<script src="{}"></script>'.format(src)
                 for src in srcs
+            ] +
+            [
+                '<script>{}</script>'.format(src)
+                for src in self._inline_scripts
             ]
         )
 
@@ -1194,13 +1203,14 @@ class Dash(object):
         (JavaScript) function instead of a Python function.
 
         Unlike `@app.calllback`, `clientside_callback` is not a decorator:
-        it takes a
+        it takes either a
         `dash.dependencies.ClientsideFunction(namespace, function_name)`
         argument that describes which JavaScript function to call
         (Dash will look for the JavaScript function at
-        `window[namespace][function_name]`).
+        `window.dash_clientside[namespace][function_name]`), or it may take
+        a string argument that contains the clientside function source.
 
-        For example:
+        For example, when using a `dash.dependencies.ClientsideFunction`:
         ```
         app.clientside_callback(
             ClientsideFunction('my_clientside_library', 'my_function'),
@@ -1211,16 +1221,17 @@ class Dash(object):
         ```
 
         With this signature, Dash's front-end will call
-        `window.my_clientside_library.my_function` with the current
-        values of the `value` properties of the components
-        `my-input` and `another-input` whenever those values change.
+        `window.dash_clientside.my_clientside_library.my_function` with the
+        current values of the `value` properties of the components `my-input`
+        and `another-input` whenever those values change.
 
-        Include a JavaScript file by including it your `assets/` folder.
-        The file can be named anything but you'll need to assign the
-        function's namespace to the `window`. For example, this file might
-        look like:
+        Include a JavaScript file by including it your `assets/` folder. The
+        file can be named anything but you'll need to assign the function's
+        namespace to the `window.dash_clientside` namespace. For example,
+        this file might look:
         ```
-        window.my_clientside_library = {
+        window.dash_clientside = window.dash_clientside || {};
+        window.dash_clientside.my_clientside_library = {
             my_function: function(input_value_1, input_value_2) {
                 return (
                     parseFloat(input_value_1, 10) +
@@ -1229,9 +1240,53 @@ class Dash(object):
             }
         }
         ```
+
+        Alternatively, you can pass the JavaScript source directly to
+        `clientside_callback`. In this case, the same example would look like:
+        ```
+        app.clientside_callback(
+            '''
+            function(input_value_1, input_value_2) {
+                return (
+                    parseFloat(input_value_1, 10) +
+                    parseFloat(input_value_2, 10)
+                );
+            }
+            ''',
+            Output('my-div' 'children'),
+            [Input('my-input', 'value'),
+             Input('another-input', 'value')]
+        )
+        ```
         """
         self._validate_callback(output, inputs, state)
         callback_id = _create_callback_id(output)
+
+        # If JS source is explicitly given, create a namespace and function
+        # name, then inject the code.
+        if isinstance(clientside_function, str):
+
+            out0 = output
+            if isinstance(output, (list, tuple)):
+                out0 = output[0]
+
+            namespace = '_dashprivate_{}'.format(out0.component_id)
+            function_name = '{}'.format(out0.component_property)
+
+            self._inline_scripts.append(
+                """
+                var clientside = window.dash_clientside = window.dash_clientside || {{}};
+                var ns = clientside["{0}"] = clientside["{0}"] || {{}};
+                ns["{1}"] = {2};
+                """.format(namespace.replace('"', '\\"'),
+                           function_name.replace('"', '\\"'),
+                           clientside_function)
+            )
+
+        # Callback is stored in an external asset.
+        else:
+            namespace = clientside_function.namespace
+            function_name = clientside_function.function_name
 
         self.callback_map[callback_id] = {
             "inputs": [
@@ -1243,8 +1298,8 @@ class Dash(object):
                 for c in state
             ],
             "clientside_function": {
-                "namespace": clientside_function.namespace,
-                "function_name": clientside_function.function_name,
+                "namespace": namespace,
+                "function_name": function_name,
             },
         }
 
@@ -1304,7 +1359,7 @@ class Dash(object):
                     has_update = False
                     for i, o in enumerate(output):
                         val = output_value[i]
-                        if val is not no_update:
+                        if not isinstance(val, _NoUpdate):
                             has_update = True
                             o_id, o_prop = o.component_id, o.component_property
                             component_ids[o_id][o_prop] = val
@@ -1314,7 +1369,7 @@ class Dash(object):
 
                     response = {"response": component_ids, "multi": True}
                 else:
-                    if output_value is no_update:
+                    if isinstance(output_value, _NoUpdate):
                         raise exceptions.PreventUpdate
 
                     response = {
@@ -1511,6 +1566,102 @@ class Dash(object):
         )
 
         return asset
+
+    def get_relative_path(self, path):
+        """
+        Return a path with `requests_pathname_prefix` prefixed before it.
+        Use this function when specifying local URL paths that will work
+        in environments regardless of what `requests_pathname_prefix` is.
+        In some deployment environments, like Dash Enterprise,
+        `requests_pathname_prefix` is set to the application name,
+        e.g. `my-dash-app`.
+        When working locally, `requests_pathname_prefix` might be unset and
+        so a relative URL like `/page-2` can just be `/page-2`.
+        However, when the app is deployed to a URL like `/my-dash-app`, then
+        `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`.
+        This can be used as an alternative to `get_asset_url` as well with
+        `app.get_relative_path('/assets/logo.png')`
+
+        Use this function with `app.strip_relative_path` in callbacks that
+        deal with `dcc.Location` `pathname` routing.
+        That is, your usage may look like:
+        ```
+        app.layout = html.Div([
+            dcc.Location(id='url'),
+            html.Div(id='content')
+        ])
+        @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+        def display_content(path):
+            page_name = app.strip_relative_path(path)
+            if not page_name:  # None or ''
+                return html.Div([
+                    dcc.Link(href=app.get_relative_path('/page-1')),
+                    dcc.Link(href=app.get_relative_path('/page-2')),
+                ])
+            elif page_name == 'page-1':
+                return chapters.page_1
+            if page_name == "page-2":
+                return chapters.page_2
+        ```
+        """
+        asset = _get_relative_path(
+            self.config.requests_pathname_prefix,
+            path,
+        )
+
+        return asset
+
+    def strip_relative_path(self, path):
+        """
+        Return a path with `requests_pathname_prefix` and leading and trailing
+        slashes stripped from it. Also, if None is passed in, None is returned.
+        Use this function with `get_relative_path` in callbacks that deal
+        with `dcc.Location` `pathname` routing.
+        That is, your usage may look like:
+        ```
+        app.layout = html.Div([
+            dcc.Location(id='url'),
+            html.Div(id='content')
+        ])
+        @app.callback(Output('content', 'children'), [Input('url', 'pathname')])
+        def display_content(path):
+            page_name = app.strip_relative_path(path)
+            if not page_name:  # None or ''
+                return html.Div([
+                    dcc.Link(href=app.get_relative_path('/page-1')),
+                    dcc.Link(href=app.get_relative_path('/page-2')),
+                ])
+            elif page_name == 'page-1':
+                return chapters.page_1
+            if page_name == "page-2":
+                return chapters.page_2
+        ```
+        Note that `chapters.page_1` will be served if the user visits `/page-1`
+        _or_ `/page-1/` since `strip_relative_path` removes the trailing slash.
+
+        Also note that `strip_relative_path` is compatible with
+        `get_relative_path` in environments where `requests_pathname_prefix` set.
+        In some deployment environments, like Dash Enterprise,
+        `requests_pathname_prefix` is set to the application name, e.g. `my-dash-app`.
+        When working locally, `requests_pathname_prefix` might be unset and
+        so a relative URL like `/page-2` can just be `/page-2`.
+        However, when the app is deployed to a URL like `/my-dash-app`, then
+        `app.get_relative_path('/page-2')` will return `/my-dash-app/page-2`
+
+        The `pathname` property of `dcc.Location` will return '`/my-dash-app/page-2`'
+        to the callback.
+        In this case, `app.strip_relative_path('/my-dash-app/page-2')`
+        will return `'page-2'`
+
+        For nested URLs, slashes are still included:
+        `app.strip_relative_path('/page-1/sub-page-1/')` will return
+        `page-1/sub-page-1`
+        ```
+        """
+        return _strip_relative_path(
+            self.config.requests_pathname_prefix,
+            path,
+        )
 
     def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get("debug", False)
