@@ -1,4 +1,3 @@
-from multiprocessing import Value
 import pytest
 import re
 from selenium.webdriver.common.keys import Keys
@@ -6,135 +5,16 @@ from selenium.webdriver.common.keys import Keys
 import dash_html_components as html
 import dash_core_components as dcc
 import dash
+from dash.testing import wait
 from dash.dependencies import Input, Output, State, ALL, ALLSMALLER, MATCH
+
+from ...assets.todo_app import todo_app
 
 
 def css_escape(s):
     sel = re.sub("[\\{\\}\\\"\\'.:,]", lambda m: "\\" + m.group(0), s)
     print(sel)
     return sel
-
-
-def todo_app(content_callback):
-    app = dash.Dash(__name__)
-
-    content = html.Div(
-        [
-            html.Div("Dash To-Do list"),
-            dcc.Input(id="new-item"),
-            html.Button("Add", id="add"),
-            html.Button("Clear Done", id="clear-done"),
-            html.Div(id="list-container"),
-            html.Hr(),
-            html.Div(id="totals"),
-        ]
-    )
-
-    if content_callback:
-        app.layout = html.Div([html.Div(id="content"), dcc.Location(id="url")])
-
-        @app.callback(Output("content", "children"), [Input("url", "pathname")])
-        def display_content(_):
-            return content
-
-    else:
-        app.layout = content
-
-    style_todo = {"display": "inline", "margin": "10px"}
-    style_done = {"textDecoration": "line-through", "color": "#888"}
-    style_done.update(style_todo)
-
-    app.list_calls = Value("i", 0)
-    app.style_calls = Value("i", 0)
-    app.preceding_calls = Value("i", 0)
-    app.total_calls = Value("i", 0)
-
-    @app.callback(
-        [Output("list-container", "children"), Output("new-item", "value")],
-        [
-            Input("add", "n_clicks"),
-            Input("new-item", "n_submit"),
-            Input("clear-done", "n_clicks"),
-        ],
-        [
-            State("new-item", "value"),
-            State({"item": ALL}, "children"),
-            State({"item": ALL, "action": "done"}, "value"),
-        ],
-    )
-    def edit_list(add, add2, clear, new_item, items, items_done):
-        app.list_calls.value += 1
-        triggered = [t["prop_id"] for t in dash.callback_context.triggered]
-        adding = len(
-            [1 for i in triggered if i in ("add.n_clicks", "new-item.n_submit")]
-        )
-        clearing = len([1 for i in triggered if i == "clear-done.n_clicks"])
-        new_spec = [
-            (text, done)
-            for text, done in zip(items, items_done)
-            if not (clearing and done)
-        ]
-        if adding:
-            new_spec.append((new_item, []))
-        new_list = [
-            html.Div(
-                [
-                    dcc.Checklist(
-                        id={"item": i, "action": "done"},
-                        options=[{"label": "", "value": "done"}],
-                        value=done,
-                        style={"display": "inline"},
-                    ),
-                    html.Div(
-                        text, id={"item": i}, style=style_done if done else style_todo
-                    ),
-                    html.Div(id={"item": i, "preceding": True}, style=style_todo),
-                ],
-                style={"clear": "both"},
-            )
-            for i, (text, done) in enumerate(new_spec)
-        ]
-        return [new_list, "" if adding else new_item]
-
-    @app.callback(
-        Output({"item": MATCH}, "style"),
-        [Input({"item": MATCH, "action": "done"}, "value")],
-    )
-    def mark_done(done):
-        app.style_calls.value += 1
-        return style_done if done else style_todo
-
-    @app.callback(
-        Output({"item": MATCH, "preceding": True}, "children"),
-        [
-            Input({"item": ALLSMALLER, "action": "done"}, "value"),
-            Input({"item": MATCH, "action": "done"}, "value"),
-        ],
-    )
-    def show_preceding(done_before, this_done):
-        app.preceding_calls.value += 1
-        if this_done:
-            return ""
-        all_before = len(done_before)
-        done_before = len([1 for d in done_before if d])
-        out = "{} of {} preceding items are done".format(done_before, all_before)
-        if all_before == done_before:
-            out += " DO THIS NEXT!"
-        return out
-
-    @app.callback(
-        Output("totals", "children"), [Input({"item": ALL, "action": "done"}, "value")]
-    )
-    def show_totals(done):
-        app.total_calls.value += 1
-        count_all = len(done)
-        count_done = len([d for d in done if d])
-        result = "{} of {} items completed".format(count_done, count_all)
-        if count_all:
-            result += " - {}%".format(int(100 * count_done / count_all))
-        return result
-
-    return app
 
 
 @pytest.mark.parametrize("content_callback", (False, True))
@@ -229,7 +109,17 @@ def test_cbwc001_todo_app(content_callback, dash_duo):
     assert_count(0)
 
 
+fibonacci_count = 0
+fibonacci_sum_count = 0
+
+
 def fibonacci_app(clientside):
+    global fibonacci_count
+    global fibonacci_sum_count
+
+    fibonacci_count = 0
+    fibonacci_sum_count = 0
+
     # This app tests 2 things in particular:
     # - clientside callbacks work the same as server-side
     # - callbacks using ALLSMALLER as an input to MATCH of the exact same id/prop
@@ -242,7 +132,7 @@ def fibonacci_app(clientside):
         ]
     )
 
-    @app.callback(Output("series", "children"), [Input("n", "value")])
+    @app.callback(Output("series", "children"), Input("n", "value"))
     def items(n):
         return [html.Div(id={"i": i}) for i in range(n)]
 
@@ -255,7 +145,7 @@ def fibonacci_app(clientside):
             }
             """,
             Output({"i": MATCH}, "children"),
-            [Input({"i": ALLSMALLER}, "children")],
+            Input({"i": ALLSMALLER}, "children"),
         )
 
         app.clientside_callback(
@@ -266,21 +156,29 @@ def fibonacci_app(clientside):
             }
             """,
             Output("sum", "children"),
-            [Input({"i": ALL}, "children")],
+            Input({"i": ALL}, "children"),
         )
 
     else:
 
         @app.callback(
-            Output({"i": MATCH}, "children"), [Input({"i": ALLSMALLER}, "children")]
+            Output({"i": MATCH}, "children"), Input({"i": ALLSMALLER}, "children")
         )
         def sequence(prev):
+            global fibonacci_count
+            fibonacci_count = fibonacci_count + 1
+            print(fibonacci_count)
+
             if len(prev) < 2:
                 return len(prev)
             return int(prev[-1] or 0) + int(prev[-2] or 0)
 
-        @app.callback(Output("sum", "children"), [Input({"i": ALL}, "children")])
+        @app.callback(Output("sum", "children"), Input({"i": ALL}, "children"))
         def show_sum(seq):
+            global fibonacci_sum_count
+            fibonacci_sum_count = fibonacci_sum_count + 1
+            print("fibonacci_sum_count: ", fibonacci_sum_count)
+
             return "{} elements, sum: {}".format(
                 len(seq), sum(int(v or 0) for v in seq)
             )
@@ -454,3 +352,46 @@ def test_cbwc004_layout_chunk_changed_props(dash_duo):
     trigger_text = 'triggered is Truthy with prop_ids {"index":1,"type":"input"}.value'
     dash_duo.wait_for_text_to_equal("#output-outer", trigger_text)
     dash_duo.wait_for_text_to_equal("#output-inner", trigger_text)
+
+
+def test_cbwc005_callbacks_count(dash_duo):
+    global fibonacci_count
+    global fibonacci_sum_count
+
+    app = fibonacci_app(False)
+    dash_duo.start_server(app)
+
+    wait.until(lambda: fibonacci_count == 4, 3)  # initial
+    wait.until(lambda: fibonacci_sum_count == 2, 3)  # initial + triggered
+
+    dash_duo.find_element("#n").send_keys(Keys.UP)  # 5
+    wait.until(lambda: fibonacci_count == 9, 3)
+    wait.until(lambda: fibonacci_sum_count == 3, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.UP)  # 6
+    wait.until(lambda: fibonacci_count == 15, 3)
+    wait.until(lambda: fibonacci_sum_count == 4, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 5
+    wait.until(lambda: fibonacci_count == 20, 3)
+    wait.until(lambda: fibonacci_sum_count == 5, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 4
+    wait.until(lambda: fibonacci_count == 24, 3)
+    wait.until(lambda: fibonacci_sum_count == 6, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 3
+    wait.until(lambda: fibonacci_count == 27, 3)
+    wait.until(lambda: fibonacci_sum_count == 7, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 2
+    wait.until(lambda: fibonacci_count == 29, 3)
+    wait.until(lambda: fibonacci_sum_count == 8, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 1
+    wait.until(lambda: fibonacci_count == 30, 3)
+    wait.until(lambda: fibonacci_sum_count == 9, 3)
+
+    dash_duo.find_element("#n").send_keys(Keys.DOWN)  # 0
+    wait.until(lambda: fibonacci_count == 30, 3)
+    wait.until(lambda: fibonacci_sum_count == 10, 3)

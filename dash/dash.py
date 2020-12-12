@@ -1,8 +1,6 @@
 from __future__ import print_function
 
-import itertools
 import os
-import random
 import sys
 import collections
 import importlib
@@ -11,20 +9,27 @@ import pkgutil
 import threading
 import re
 import logging
+import time
+import mimetypes
+import hashlib
+import base64
 
 from functools import wraps
+from future.moves.urllib.parse import urlparse
 
 import flask
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
+from pkg_resources import get_distribution, parse_version
 
 import plotly
 import dash_renderer
 
 from .fingerprint import build_fingerprint, check_fingerprint
 from .resources import Scripts, Css
+from .dependencies import handle_callback_args
 from .development.base_component import ComponentRegistry
-from .exceptions import PreventUpdate, InvalidResourceError
+from .exceptions import PreventUpdate, InvalidResourceError, ProxyError
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs
 from ._utils import (
@@ -44,6 +49,11 @@ from ._utils import (
 )
 from . import _validate
 from . import _watch
+
+_flask_compress_version = parse_version(get_distribution("flask-compress").version)
+
+# Add explicit mapping for map files
+mimetypes.add_type("application/json", ".map", True)
 
 _default_index = """<!DOCTYPE html>
 <html>
@@ -207,6 +217,15 @@ class Dash(object):
         env: ``DASH_SUPPRESS_CALLBACK_EXCEPTIONS``
     :type suppress_callback_exceptions: boolean
 
+    :param prevent_initial_callbacks: Default ``False``: Sets the default value
+        of ``prevent_initial_call`` for all callbacks added to the app.
+        Normally all callbacks are fired when the associated outputs are first
+        added to the page. You can disable this for individual callbacks by
+        setting ``prevent_initial_call`` in their definitions, or set it
+        ``True`` here in which case you must explicitly set it ``False`` for
+        those callbacks you wish to have an initial call. This setting has no
+        effect on triggering callbacks when their inputs change later on.
+
     :param show_undo_redo: Default ``False``, set to ``True`` to enable undo
         and redo buttons for stepping through the history of the app state.
     :type show_undo_redo: boolean
@@ -215,6 +234,15 @@ class Dash(object):
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
     :type plugins: list of objects
+
+    :param title: Default ``Dash``. Configures the document.title
+    (the text that appears in a browser tab).
+
+    :param update_title: Default ``Updating...``. Configures the document.title
+    (the text that appears in a browser tab) text when a callback is being run.
+    Set to None or '' if you don't want the document.title to change or if you
+    want to control the document.title through a separate component or
+    clientside callback.
     """
 
     def __init__(
@@ -237,8 +265,11 @@ class Dash(object):
         external_scripts=None,
         external_stylesheets=None,
         suppress_callback_exceptions=None,
+        prevent_initial_callbacks=False,
         show_undo_redo=False,
         plugins=None,
+        title="Dash",
+        update_title="Updating...",
         **obsolete
     ):
         _validate.check_obsolete(obsolete)
@@ -254,6 +285,16 @@ class Dash(object):
             self.server = flask.Flask(name) if server else None
         else:
             raise ValueError("server must be a Flask app or a boolean")
+
+        if (
+            self.server is not None
+            and not hasattr(self.server.config, "COMPRESS_ALGORITHM")
+            and _flask_compress_version >= parse_version("1.6.0")
+        ):
+            # flask-compress==1.6.0 changed default to ['br', 'gzip']
+            # and non-overridable default compression with Brotli is
+            # causing performance issues
+            self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -284,7 +325,10 @@ class Dash(object):
             suppress_callback_exceptions=get_combined_config(
                 "suppress_callback_exceptions", suppress_callback_exceptions, False
             ),
+            prevent_initial_callbacks=prevent_initial_callbacks,
             show_undo_redo=show_undo_redo,
+            title=title,
+            update_title=update_title,
         )
         self.config.set_read_only(
             [
@@ -304,6 +348,9 @@ class Dash(object):
             "Invalid config key. Some settings are only available "
             "via the Dash constructor"
         )
+
+        # keep title as a class property for backwards compatibility
+        self.title = title
 
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map = {}
@@ -331,7 +378,8 @@ class Dash(object):
         self.routes = []
 
         self._layout = None
-        self._cached_layout = None
+        self._layout_is_function = False
+        self.validation_layout = None
 
         self._setup_dev_tools()
         self._hot_reload = AttributeDict(
@@ -353,6 +401,8 @@ class Dash(object):
 
         if self.server is not None:
             self.init_app()
+
+        self.logger.setLevel(logging.INFO)
 
     def init_app(self, app=None):
         """Initialize the parts of Dash that require a flask app."""
@@ -421,17 +471,47 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        if isinstance(self._layout, patch_collections_abc("Callable")):
-            self._cached_layout = self._layout()
-        else:
-            self._cached_layout = self._layout
-        return self._cached_layout
+        return self._layout() if self._layout_is_function else self._layout
 
     @layout.setter
     def layout(self, value):
         _validate.validate_layout_type(value)
-        self._cached_layout = None
+        self._layout_is_function = isinstance(value, patch_collections_abc("Callable"))
         self._layout = value
+
+        # for using flask.has_request_context() to deliver a full layout for
+        # validation inside a layout function - track if a user might be doing this.
+        if (
+            self._layout_is_function
+            and not self.validation_layout
+            and not self.config.suppress_callback_exceptions
+        ):
+
+            def simple_clone(c, children=None):
+                cls = type(c)
+                # in Py3 we can use the __init__ signature to reduce to just
+                # required args and id; in Py2 this doesn't work so we just
+                # empty out children.
+                sig = getattr(cls.__init__, "__signature__", None)
+                props = {
+                    p: getattr(c, p)
+                    for p in c._prop_names  # pylint: disable=protected-access
+                    if hasattr(c, p)
+                    and (
+                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
+                    )
+                }
+                if props.get("children", children):
+                    props["children"] = children or []
+                return cls(**props)
+
+            layout_value = self._layout_value()
+            _validate.validate_layout(value, layout_value)
+            self.validation_layout = simple_clone(
+                # pylint: disable=protected-access
+                layout_value,
+                [simple_clone(c) for c in layout_value._traverse_ids()],
+            )
 
     @property
     def index_string(self):
@@ -461,6 +541,7 @@ class Dash(object):
             "props_check": self._dev_tools.props_check,
             "show_undo_redo": self.config.show_undo_redo,
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
+            "update_title": self.config.update_title,
         }
         if self._dev_tools.hot_reload:
             config["hot_reload"] = {
@@ -468,6 +549,9 @@ class Dash(object):
                 "interval": int(self._dev_tools.hot_reload_interval * 1000),
                 "max_retry": self._dev_tools.hot_reload_max_retry,
             }
+        if self.validation_layout and not self.config.suppress_callback_exceptions:
+            config["validation_layout"] = self.validation_layout
+
         return config
 
     def serve_reload_hash(self):
@@ -601,8 +685,8 @@ class Dash(object):
         )
 
     def _generate_config_html(self):
-        return ('<script id="_dash-config" type="application/json">{}</script>').format(
-            json.dumps(self._config())
+        return '<script id="_dash-config" type="application/json">{}</script>'.format(
+            json.dumps(self._config(), cls=plotly.utils.PlotlyJSONEncoder)
         )
 
     def _generate_renderer(self):
@@ -635,13 +719,8 @@ class Dash(object):
 
         _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
 
-        mimetype = (
-            {
-                "js": "application/javascript",
-                "css": "text/css",
-                "map": "application/json",
-            }
-        )[path_in_pkg.split(".")[-1]]
+        extension = "." + path_in_pkg.split(".")[-1]
+        mimetype = mimetypes.types_map.get(extension, "application/octet-stream")
 
         package = sys.modules[package_name]
         self.logger.debug(
@@ -679,7 +758,9 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         renderer = self._generate_renderer()
-        title = getattr(self, "title", "Dash")
+
+        # use self.title instead of app.config.title for backwards compatibility
+        title = self.title
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -780,14 +861,17 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify(self._callback_list)
 
-    def _insert_callback(self, output, inputs, state):
-        _validate.validate_callback(output, inputs, state)
+    def _insert_callback(self, output, inputs, state, prevent_initial_call):
+        if prevent_initial_call is None:
+            prevent_initial_call = self.config.prevent_initial_callbacks
+
         callback_id = create_callback_id(output)
         callback_spec = {
             "output": callback_id,
             "inputs": [c.to_dict() for c in inputs],
             "state": [c.to_dict() for c in state],
             "clientside_function": None,
+            "prevent_initial_call": prevent_initial_call,
         }
         self.callback_map[callback_id] = {
             "inputs": callback_spec["inputs"],
@@ -797,7 +881,7 @@ class Dash(object):
 
         return callback_id
 
-    def clientside_callback(self, clientside_function, output, inputs, state=()):
+    def clientside_callback(self, clientside_function, *args, **kwargs):
         """Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
@@ -857,8 +941,13 @@ class Dash(object):
              Input('another-input', 'value')]
         )
         ```
+
+        The last, optional argument `prevent_initial_call` causes the callback
+        not to fire when its outputs are first added to the page. Defaults to
+        `False` unless `prevent_initial_callbacks=True` at the app level.
         """
-        self._insert_callback(output, inputs, state)
+        output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
+        self._insert_callback(output, inputs, state, prevent_initial_call)
 
         # If JS source is explicitly given, create a namespace and function
         # name, then inject the code.
@@ -889,8 +978,24 @@ class Dash(object):
             "function_name": function_name,
         }
 
-    def callback(self, output, inputs, state=()):
-        callback_id = self._insert_callback(output, inputs, state)
+    def callback(self, *_args, **_kwargs):
+        """
+        Normally used as a decorator, `@app.callback` provides a server-side
+        callback relating the values of one or more `Output` items to one or
+        more `Input` items which will trigger the callback when they change,
+        and optionally `State` items which provide additional information but
+        do not trigger the callback directly.
+
+        The last, optional argument `prevent_initial_call` causes the callback
+        not to fire when its outputs are first added to the page. Defaults to
+        `False` unless `prevent_initial_callbacks=True` at the app level.
+
+
+        """
+        output, inputs, state, prevent_initial_call = handle_callback_args(
+            _args, _kwargs
+        )
+        callback_id = self._insert_callback(output, inputs, state, prevent_initial_call)
         multi = isinstance(output, (list, tuple))
 
         def wrap_func(func):
@@ -961,9 +1066,13 @@ class Dash(object):
 
         response = flask.g.dash_response = flask.Response(mimetype="application/json")
 
-        args = inputs_to_vals(inputs) + inputs_to_vals(state)
+        args = inputs_to_vals(inputs + state)
 
-        func = self.callback_map[output]["callback"]
+        try:
+            func = self.callback_map[output]["callback"]
+        except KeyError:
+            msg = "Callback function not found for output '{}', perhaps you forgot to prepend the '@'?"
+            raise KeyError(msg.format(output))
         response.set_data(func(*args, outputs_list=outputs_list))
         return response
 
@@ -1001,7 +1110,7 @@ class Dash(object):
         ignore_str = self.config.assets_ignore
         ignore_filter = re.compile(ignore_str) if ignore_str else None
 
-        for current, _, files in os.walk(walk_dir):
+        for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
                 base = ""
             else:
@@ -1038,6 +1147,42 @@ class Dash(object):
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
+
+    def csp_hashes(self, hash_algorithm="sha256"):
+        """Calculates CSP hashes (sha + base64) of all inline scripts, such that
+        one of the biggest benefits of CSP (disallowing general inline scripts)
+        can be utilized together with Dash clientside callbacks (inline scripts).
+
+        Calculate these hashes after all inline callbacks are defined,
+        and add them to your CSP headers before starting the server, for example
+        with the flask-talisman package from PyPI:
+
+        flask_talisman.Talisman(app.server, content_security_policy={
+            "default-src": "'self'",
+            "script-src": ["'self'"] + app.csp_hashes()
+        })
+
+        :param hash_algorithm: One of the recognized CSP hash algorithms ('sha256', 'sha384', 'sha512').
+        :return: List of CSP hash strings of all inline scripts.
+        """
+
+        HASH_ALGORITHMS = ["sha256", "sha384", "sha512"]
+        if hash_algorithm not in HASH_ALGORITHMS:
+            raise ValueError(
+                "Possible CSP hash algorithms: " + ", ".join(HASH_ALGORITHMS)
+            )
+
+        method = getattr(hashlib, hash_algorithm)
+
+        return [
+            "'{hash_algorithm}-{base64_hash}'".format(
+                hash_algorithm=hash_algorithm,
+                base64_hash=base64.b64encode(
+                    method(script.encode("utf-8")).digest()
+                ).decode("utf-8"),
+            )
+            for script in self._inline_scripts + [self.renderer]
+        ]
 
     def get_asset_url(self, path):
         asset = get_asset_path(
@@ -1267,20 +1412,24 @@ class Dash(object):
 
         if dev_tools.silence_routes_logging:
             logging.getLogger("werkzeug").setLevel(logging.ERROR)
-            self.logger.setLevel(logging.INFO)
 
         if dev_tools.hot_reload:
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
+            # find_loader should return None on __main__ but doesn't
+            # on some Python versions https://bugs.python.org/issue14710
+            packages = [
+                pkgutil.find_loader(x)
+                for x in list(ComponentRegistry.registry) + ["dash_renderer"]
+                if x != "__main__"
+            ]
+
             component_packages_dist = [
                 os.path.dirname(package.path)
                 if hasattr(package, "path")
                 else package.filename
-                for package in (
-                    pkgutil.find_loader(x)
-                    for x in list(ComponentRegistry.registry) + ["dash_renderer"]
-                )
+                for package in packages
             ]
 
             _reload.watch_thread = threading.Thread(
@@ -1308,6 +1457,34 @@ class Dash(object):
                         skip = int((i + 1) / 2)
                         break
                 return get_current_traceback(skip=skip).render_full(), 500
+
+        if debug and dev_tools.ui:
+
+            def _before_request():
+                flask.g.timing_information = {
+                    "__dash_server": {"dur": time.time(), "desc": None}
+                }
+
+            def _after_request(response):
+                dash_total = flask.g.timing_information["__dash_server"]
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+                for name, info in flask.g.timing_information.items():
+
+                    value = name
+                    if info.get("desc") is not None:
+                        value += ';desc="{}"'.format(info["desc"])
+
+                    if info.get("dur") is not None:
+                        value += ";dur={}".format(info["dur"])
+
+                    response.headers.add("Server-Timing", value)
+
+                return response
+
+            self.server.before_request(_before_request)
+
+            self.server.after_request(_after_request)
 
         if (
             debug
@@ -1379,6 +1556,7 @@ class Dash(object):
         self,
         host=os.getenv("HOST", "127.0.0.1"),
         port=os.getenv("PORT", "8050"),
+        proxy=os.getenv("DASH_PROXY", None),
         debug=False,
         dev_tools_ui=None,
         dev_tools_props_check=None,
@@ -1404,6 +1582,14 @@ class Dash(object):
         :param port: Port used to serve the application
             env: ``PORT``
         :type port: int
+
+        :param proxy: If this application will be served to a different URL
+            via a proxy configured outside of Python, you can list it here
+            as a string of the form ``"{input}::{output}"``, for example:
+            ``"http://0.0.0.0:8050::https://my.domain.com"``
+            so that the startup message will display an accurate URL.
+            env: ``DASH_PROXY``
+        :type proxy: string
 
         :param debug: Set Flask debug mode and enable dev tools.
             env: ``DASH_DEBUG``
@@ -1485,25 +1671,46 @@ class Dash(object):
             ]
             raise
 
-        if self._dev_tools.silence_routes_logging:
-            # Since it's silenced, the address doesn't show anymore.
+        # so we only see the "Running on" message once with hot reloading
+        # https://stackoverflow.com/a/57231282/9188800
+        if os.getenv("WERKZEUG_RUN_MAIN") != "true":
             ssl_context = flask_run_options.get("ssl_context")
-            self.logger.info(
-                "Running on %s://%s:%s%s",
-                "https" if ssl_context else "http",
-                host,
-                port,
-                self.config.requests_pathname_prefix,
-            )
+            protocol = "https" if ssl_context else "http"
+            path = self.config.requests_pathname_prefix
 
-            # Generate a debugger pin and log it to the screen.
-            debugger_pin = os.environ["WERKZEUG_DEBUG_PIN"] = "-".join(
-                itertools.chain(
-                    "".join([str(random.randint(0, 9)) for _ in range(3)])
-                    for _ in range(3)
+            if proxy:
+                served_url, proxied_url = map(urlparse, proxy.split("::"))
+
+                def verify_url_part(served_part, url_part, part_name):
+                    if served_part != url_part:
+                        raise ProxyError(
+                            """
+                            {0}: {1} is incompatible with the proxy:
+                                {3}
+                            To see your app at {4},
+                            you must use {0}: {2}
+                        """.format(
+                                part_name,
+                                url_part,
+                                served_part,
+                                proxy,
+                                proxied_url.geturl(),
+                            )
+                        )
+
+                verify_url_part(served_url.scheme, protocol, "protocol")
+                verify_url_part(served_url.hostname, host, "host")
+                verify_url_part(served_url.port, port, "port")
+
+                display_url = (
+                    proxied_url.scheme,
+                    proxied_url.hostname,
+                    (":{}".format(proxied_url.port) if proxied_url.port else ""),
+                    path,
                 )
-            )
+            else:
+                display_url = (protocol, host, ":{}".format(port), path)
 
-            self.logger.info("Debugger PIN: %s", debugger_pin)
+            self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
 
         self.server.run(host=host, port=port, debug=debug, **flask_run_options)

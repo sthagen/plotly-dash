@@ -64,11 +64,12 @@ import {
     lensPath,
     mergeRight,
     set,
-    type,
+    type
 } from 'ramda';
 import {createAction} from 'redux-actions';
 
 import Registry from './registry';
+import {stringifyId} from './actions/dependencies';
 
 export const storePrefix = '_dash_persistence.';
 
@@ -77,7 +78,7 @@ function err(e) {
 
     return createAction('ON_ERROR')({
         type: 'frontEnd',
-        error,
+        error
     });
 }
 
@@ -207,14 +208,14 @@ function longString() {
 }
 
 export const stores = {
-    memory: new MemStore(),
+    memory: new MemStore()
     // Defer testing & making local/session stores until requested.
     // That way if we have errors here they can show up in devtools.
 };
 
 const backEnds = {
     local: 'localStorage',
-    session: 'sessionStorage',
+    session: 'sessionStorage'
 };
 
 function tryGetWebStore(backEnd, dispatch) {
@@ -261,16 +262,24 @@ function getStore(type, dispatch) {
 
 const noopTransform = {
     extract: propValue => propValue,
-    apply: (storedValue, _propValue) => storedValue,
+    apply: (storedValue, _propValue) => storedValue
 };
 
-const getTransform = (element, propName, propPart) =>
-    propPart
-        ? element.persistenceTransforms[propName][propPart]
-        : noopTransform;
+const getTransform = (element, propName, propPart) => {
+    if (
+        element.persistenceTransforms &&
+        element.persistenceTransforms[propName]
+    ) {
+        if (propPart) {
+            return element.persistenceTransforms[propName][propPart];
+        }
+        return element.persistenceTransforms[propName];
+    }
+    return noopTransform;
+};
 
 const getValsKey = (id, persistedProp, persistence) =>
-    `${id}.${persistedProp}.${JSON.stringify(persistence)}`;
+    `${stringifyId(id)}.${persistedProp}.${JSON.stringify(persistence)}`;
 
 const getProps = layout => {
     const {props, type, namespace} = layout;
@@ -293,7 +302,7 @@ const getProps = layout => {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     };
 };
 
@@ -305,7 +314,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     } = getProps(layout);
     if (!canPersist || !persistence) {
         return;
@@ -380,7 +389,7 @@ function persistenceMods(layout, component, path, dispatch) {
         element,
         persistence,
         persisted_props,
-        persistence_type,
+        persistence_type
     } = getProps(component);
 
     let layoutOut = layout;
@@ -446,7 +455,7 @@ export function prunePersistence(layout, newProps, dispatch) {
         persistence,
         persisted_props,
         persistence_type,
-        element,
+        element
     } = getProps(layout);
 
     const getFinal = (propName, prevVal) =>
