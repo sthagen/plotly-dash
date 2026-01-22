@@ -1,11 +1,10 @@
 import collections
 import hashlib
+import inspect
 from functools import wraps
 
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 
-
-import asyncio
 import flask
 
 from .dependencies import (
@@ -49,7 +48,7 @@ async def _async_invoke_callback(
     func, *args, **kwargs
 ):  # used to mark the frame for the debugger
     # Check if the function is a coroutine function
-    if asyncio.iscoroutinefunction(func):
+    if inspect.iscoroutinefunction(func):
         return await func(*args, **kwargs)  # %% callback invoked %%
     # If the function is not a coroutine, call it directly
     return func(*args, **kwargs)  # %% callback invoked %%
@@ -80,7 +79,7 @@ def callback(
     on_error: Optional[Callable[[Exception], Any]] = None,
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
-    hidden: Optional[bool] = False,
+    hidden: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -278,7 +277,7 @@ def insert_callback(
     dynamic_creator: Optional[bool] = False,
     no_output=False,
     optional=False,
-    hidden=False,
+    hidden=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -652,7 +651,7 @@ def register_callback(
         running=running,
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
-        hidden=_kwargs.get("hidden", False),
+        hidden=_kwargs.get("hidden", None),
     )
 
     # pylint: disable=too-many-locals
@@ -814,7 +813,7 @@ def register_callback(
 
             return jsonResponse
 
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
             callback_map[callback_id]["callback"] = add_context
@@ -855,6 +854,7 @@ def register_clientside_callback(
         None,
         prevent_initial_call,
         no_output=no_output,
+        hidden=kwargs.get("hidden", False),
     )
 
     # If JS source is explicitly given, create a namespace and function

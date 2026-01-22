@@ -4,13 +4,10 @@ import typing  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
+ComponentSingleType = typing.Union[str, int, float, Component, None]
 ComponentType = typing.Union[
-    str,
-    int,
-    float,
-    Component,
-    None,
-    typing.Sequence[typing.Union[str, int, float, Component, None]],
+    ComponentSingleType,
+    typing.Sequence[ComponentSingleType],
 ]
 
 NumberType = typing.Union[
@@ -105,6 +102,12 @@ class Video(Component):
         n_clicks changed. This can be used to tell which button was
         changed most recently.
 
+    - playsInline (a value equal to: 'playsInline', 'playsinline', 'PLAYSINLINE' | boolean; optional):
+        A Boolean attribute indicating that the video is to be played
+        \"inline\"; that is, within the element's playback area. Note that
+        the absence of this attribute does not imply that the video will
+        always be played in fullscreen.
+
     - poster (string; optional):
         A URL indicating a poster frame to show until the user plays or
         seeks.
@@ -159,6 +162,9 @@ class Video(Component):
         height: typing.Optional[typing.Union[str, NumberType]] = None,
         loop: typing.Optional[typing.Union[Literal["loop", "LOOP"], bool]] = None,
         muted: typing.Optional[typing.Union[Literal["muted", "MUTED"], bool]] = None,
+        playsInline: typing.Optional[
+            typing.Union[Literal["playsInline", "playsinline", "PLAYSINLINE"], bool]
+        ] = None,
         poster: typing.Optional[str] = None,
         preload: typing.Optional[str] = None,
         src: typing.Optional[str] = None,
@@ -199,6 +205,7 @@ class Video(Component):
             "muted",
             "n_clicks",
             "n_clicks_timestamp",
+            "playsInline",
             "poster",
             "preload",
             "role",
@@ -232,6 +239,7 @@ class Video(Component):
             "muted",
             "n_clicks",
             "n_clicks_timestamp",
+            "playsInline",
             "poster",
             "preload",
             "role",

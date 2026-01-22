@@ -2,6 +2,26 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Added
+
+- [#3568]((https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
+- [#3534]((https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338]((https://github.com/plotly/dash/pull/2338)
+- [#3541](https://github.com/plotly/dash/pull/3541) Add `attributes` dictionary to be be formatted on script/link (_js_dist/_css_dist) tags of the index, allows for `type="module"` or `type="importmap"`. [#3538](https://github.com/plotly/dash/issues/3538)
+- [#3542](https://github.com/plotly/dash/pull/3542) Add hidden=True to dash pages callback.
+- [#3564](https://github.com/plotly/dash/pull/3564) Add new parameter `hide_all_callbacks` to `run()`. Closes [#3493](https://github.com/plotly/dash/issues/3493)
+- [#3563](https://github.com/plotly/dash/pull/3563) Add hidden to clientside callbacks as configurable parameter
+
+## Fixed
+- [#3541](https://github.com/plotly/dash/pull/3541) Remove last reference of deprecated `pkg_resources`.
+- [#3548](https://github.com/plotly/dash/pull/3548) Fix devtools overflowing it's container on version update. Fix [#3535](https://github.com/plotly/dash/issues/3535).
+- [#3545](https://github.com/plotly/dash/pull/3545) Replace deprecated asyncio.iscoroutinefunction() call with inspect.iscoroutinefunction()
+
+# Changed
+- [#3540](https://github.com/plotly/dash/pull/3540) Expose more types for better static typing options.
+- [#3520](https://github.com/plotly/dash/pull/3520). Set `pointer-events` to `auto` on `Tooltip` to make it possible to interact with tooltip content when `targetable=True`
+
 ## [3.3.0] - 2025-11-12
 
 ## Added
@@ -21,6 +41,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3415](https://github.com/plotly/dash/pull/3415) Fix the error triggered when only a single no_update is returned for client-side callback functions with multiple Outputs. Fix [#3366](https://github.com/plotly/dash/issues/3366)
 - [#3416](https://github.com/plotly/dash/issues/3416) Fix DeprecationWarning in dash/_jupyter.py by migrating from deprecated ipykernel.comm.Comm to comm module
 - [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
+- [#3496](https://github.com/plotly/dash/pull/3496) Fix dcc.Graph infinite resize loop
 
 ## Deprecated
 - [#3482](https://github.com/plotly/dash/pull/3482) Deprecate dash_table.DataTable with replacement from `dash[ag-grid]` extra requirement.
