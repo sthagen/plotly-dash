@@ -21,7 +21,7 @@ class Loading(Component):
 
     Keyword arguments:
 
-    - children (list of a list of or a singular dash component, string or numbers | a list of or a singular dash component, string or number; optional):
+    - children (a list of or a singular dash component, string or number; optional):
         Array that holds components to render.
 
     - id (string; optional):
@@ -30,10 +30,12 @@ class Loading(Component):
         in an app.
 
     - className (string; optional):
-        Additional CSS class for the built-in spinner root DOM node.
+        Additional CSS class for the root DOM node.
 
-    - color (string; default '#119DFF'):
+    - color (string; default 'var(--Dash-Fill-Interactive-Strong)'):
         Primary color used for the built-in loading spinners.
+
+    - componentPath (boolean | number | string | dict | list; optional)
 
     - custom_spinner (a list of or a singular dash component, string or number; optional):
         Component to use rather than the built-in spinner specified in the
@@ -51,14 +53,14 @@ class Loading(Component):
         Add a time delay (in ms) to the spinner being shown after the
         loading_state is set to True.
 
-    - display (a value equal to: 'auto', 'show', 'hide'; default 'auto'):
+    - display (a value equal to: None, 'auto', 'show', 'hide'; default 'auto'):
         Setting display to  \"show\" or \"hide\"  will override the
         loading state coming from dash-renderer.
 
     - fullscreen (boolean; optional):
         Boolean that makes the built-in spinner display full-screen.
 
-    - overlay_style (dict; optional):
+    - overlay_style (boolean | number | string | dict | list; optional):
         Additional CSS styling for the spinner overlay. This is applied to
         the dcc.Loading children while the spinner is active.  The default
         is `{'visibility': 'hidden'}`.
@@ -67,21 +69,43 @@ class Loading(Component):
         Additional CSS class for the outermost dcc.Loading parent div DOM
         node.
 
-    - parent_style (dict; optional):
+    - parent_style (boolean | number | string | dict | list; optional):
         Additional CSS styling for the outermost dcc.Loading parent div
         DOM node.
+
+    - persisted_props (boolean | number | string | dict | list; optional):
+        Properties whose user interactions will persist after refreshing
+        the component or the page. Since only `value` is allowed this prop
+        can normally be ignored.
+
+    - persistence (string | number | boolean; optional):
+        Used to allow user interactions in this component to be persisted
+        when the component - or the page - is refreshed. If `persisted` is
+        truthy and hasn't changed from its previous value, a `value` that
+        the user has changed while using the app will keep that change, as
+        long as the new `value` also matches what was given originally.
+        Used in conjunction with `persistence_type`.
+
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; optional):
+        Where persisted user changes will be stored: memory: only kept in
+        memory, reset on page refresh. local: window.localStorage, data is
+        kept after the browser quit. session: window.sessionStorage, data
+        is cleared once the browser quit.
 
     - show_initially (boolean; default True):
         Whether the Spinner should show on app start-up before the loading
         state has been determined. Default True.  Use when also setting
         `delay_show`.
 
-    - target_components (dict with strings as keys and values of type string | list of strings; optional):
+    - target_components (dict; optional):
         Specify component and prop to trigger showing the loading spinner
         example: `{\"output-container\": \"children\", \"grid\":
         [\"rowData\", \"columnDefs]}`.
 
-    - type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; optional):
+        `target_components` is a dict with keys:
+
+
+    - type (a value equal to: None, 'graph', 'cube', 'circle', 'dot', 'default'; optional):
         Property that determines which built-in spinner to show one of
         'graph', 'cube', 'circle', 'dot', or 'default'."""
 
@@ -89,32 +113,35 @@ class Loading(Component):
     _base_nodes = ["custom_spinner", "children"]
     _namespace = "dash_core_components"
     _type = "Loading"
+    TargetComponents = TypedDict("TargetComponents", {})
 
     def __init__(
         self,
         children: typing.Optional[ComponentType] = None,
-        id: typing.Optional[typing.Union[str, dict]] = None,
         type: typing.Optional[
-            Literal["graph", "cube", "circle", "dot", "default"]
+            Literal[None, "graph", "cube", "circle", "dot", "default"]
         ] = None,
-        fullscreen: typing.Optional[bool] = None,
-        debug: typing.Optional[bool] = None,
-        className: typing.Optional[str] = None,
-        parent_className: typing.Optional[str] = None,
+        fullscreen: typing.Optional[typing.Union[bool]] = None,
+        debug: typing.Optional[typing.Union[bool]] = None,
         style: typing.Optional[typing.Any] = None,
-        parent_style: typing.Optional[dict] = None,
-        overlay_style: typing.Optional[dict] = None,
-        color: typing.Optional[str] = None,
-        display: typing.Optional[Literal["auto", "show", "hide"]] = None,
-        delay_hide: typing.Optional[NumberType] = None,
-        delay_show: typing.Optional[NumberType] = None,
-        show_initially: typing.Optional[bool] = None,
-        target_components: typing.Optional[
-            typing.Dict[
-                typing.Union[str, float, int], typing.Union[str, typing.Sequence[str]]
-            ]
-        ] = None,
+        parent_className: typing.Optional[typing.Union[str]] = None,
+        parent_style: typing.Optional[typing.Any] = None,
+        overlay_style: typing.Optional[typing.Any] = None,
+        color: typing.Optional[typing.Union[str]] = None,
+        display: typing.Optional[Literal[None, "auto", "show", "hide"]] = None,
+        delay_hide: typing.Optional[typing.Union[NumberType]] = None,
+        delay_show: typing.Optional[typing.Union[NumberType]] = None,
+        show_initially: typing.Optional[typing.Union[bool]] = None,
+        target_components: typing.Optional[typing.Union["TargetComponents"]] = None,
         custom_spinner: typing.Optional[ComponentType] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -122,6 +149,7 @@ class Loading(Component):
             "id",
             "className",
             "color",
+            "componentPath",
             "custom_spinner",
             "debug",
             "delay_hide",
@@ -131,6 +159,9 @@ class Loading(Component):
             "overlay_style",
             "parent_className",
             "parent_style",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
             "show_initially",
             "style",
             "target_components",
@@ -142,6 +173,7 @@ class Loading(Component):
             "id",
             "className",
             "color",
+            "componentPath",
             "custom_spinner",
             "debug",
             "delay_hide",
@@ -151,6 +183,9 @@ class Loading(Component):
             "overlay_style",
             "parent_className",
             "parent_style",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
             "show_initially",
             "style",
             "target_components",

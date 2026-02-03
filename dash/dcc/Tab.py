@@ -17,8 +17,7 @@ NumberType = typing.Union[
 
 class Tab(Component):
     """A Tab component.
-    Part of dcc.Tabs - this is the child Tab component used to render a tabbed page.
-    Its children will be set as the content of that tab, which if clicked will become visible.
+
 
     Keyword arguments:
 
@@ -34,74 +33,122 @@ class Tab(Component):
     - className (string; optional):
         Appends a class to the Tab component.
 
+    - componentPath (boolean | number | string | dict | list; optional)
+
     - disabled (boolean; default False):
         Determines if tab is disabled or not - defaults to False.
 
     - disabled_className (string; optional):
         Appends a class to the Tab component when it is disabled.
 
-    - disabled_style (dict; default {color: '#d6d6d6'}):
+    - disabled_style (boolean | number | string | dict | list; default {color: 'var(--Dash-Text-Disabled)'}):
         Overrides the default (inline) styles when disabled.
 
-    - label (string; optional):
+    - label (string | a list of or a singular dash component, string or number; optional):
         The tab's label.
+
+    - persisted_props (boolean | number | string | dict | list; optional):
+        Properties whose user interactions will persist after refreshing
+        the component or the page. Since only `value` is allowed this prop
+        can normally be ignored.
+
+    - persistence (string | number | boolean; optional):
+        Used to allow user interactions in this component to be persisted
+        when the component - or the page - is refreshed. If `persisted` is
+        truthy and hasn't changed from its previous value, a `value` that
+        the user has changed while using the app will keep that change, as
+        long as the new `value` also matches what was given originally.
+        Used in conjunction with `persistence_type`.
+
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; optional):
+        Where persisted user changes will be stored: memory: only kept in
+        memory, reset on page refresh. local: window.localStorage, data is
+        kept after the browser quit. session: window.sessionStorage, data
+        is cleared once the browser quit.
 
     - selected_className (string; optional):
         Appends a class to the Tab component when it is selected.
 
-    - selected_style (dict; optional):
+    - selected_style (boolean | number | string | dict | list; optional):
         Overrides the default (inline) styles for the Tab component when
         it is selected.
 
     - value (string; optional):
-        Value for determining which Tab is currently selected."""
+        Value for determining which Tab is currently selected.
 
-    _children_props: typing.List[str] = []
-    _base_nodes = ["children"]
+    - width (string | number; optional):
+        A custom width for this tab, in the format of `50px` or `50%`;
+        numbers are treated as pixel values. By default, there is no width
+        and this Tab is evenly spaced along with all the other tabs to
+        occupy the available space. Setting this value will \"fix\" this
+        tab width to the given size. while the other \"non-fixed\" tabs
+        will continue to automatically occupying the remaining available
+        space. This property has no effect when tabs are displayed
+        vertically."""
+
+    _children_props: typing.List[str] = ["label"]
+    _base_nodes = ["label", "children"]
     _namespace = "dash_core_components"
     _type = "Tab"
 
     def __init__(
         self,
         children: typing.Optional[ComponentType] = None,
-        id: typing.Optional[typing.Union[str, dict]] = None,
-        label: typing.Optional[str] = None,
-        value: typing.Optional[str] = None,
-        disabled: typing.Optional[bool] = None,
-        disabled_style: typing.Optional[dict] = None,
-        disabled_className: typing.Optional[str] = None,
-        className: typing.Optional[str] = None,
-        selected_className: typing.Optional[str] = None,
+        label: typing.Optional[typing.Union[str, ComponentType]] = None,
+        value: typing.Optional[typing.Union[str]] = None,
+        disabled: typing.Optional[typing.Union[bool]] = None,
+        disabled_style: typing.Optional[typing.Any] = None,
+        disabled_className: typing.Optional[typing.Union[str]] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        selected_className: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
-        selected_style: typing.Optional[dict] = None,
+        selected_style: typing.Optional[typing.Any] = None,
+        width: typing.Optional[typing.Union[str, NumberType]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
             "children",
             "id",
             "className",
+            "componentPath",
             "disabled",
             "disabled_className",
             "disabled_style",
             "label",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
             "selected_className",
             "selected_style",
             "style",
             "value",
+            "width",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "children",
             "id",
             "className",
+            "componentPath",
             "disabled",
             "disabled_className",
             "disabled_style",
             "label",
+            "persisted_props",
+            "persistence",
+            "persistence_type",
             "selected_className",
             "selected_style",
             "style",
             "value",
+            "width",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

@@ -17,21 +17,17 @@ NumberType = typing.Union[
 
 class Input(Component):
     """An Input component.
-    A basic HTML input control for entering text, numbers, or passwords.
 
-    Note that checkbox and radio types are supported through
-    the Checklist and RadioItems component. Dates, times, and file uploads
-    are also supported through separate components.
 
     Keyword arguments:
 
     - value (string | number; optional):
         The value of the input.
 
-    - type (a value equal to: 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default 'text'):
+    - type (a value equal to: None, 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default HTMLInputTypes.text):
         The type of control to render.
 
-    - debounce (boolean | number; default False):
+    - debounce (number | boolean; default False):
         If True, changes to input will be sent back to the Dash server
         only on enter or when losing focus. If it's False, it will send
         the value back on every change. If a number, it will not send
@@ -56,15 +52,15 @@ class Input(Component):
     - n_submit_timestamp (number; default -1):
         Last time that `Enter` was pressed.
 
-    - inputMode (a value equal to: 'verbatim', 'latin', 'latin-name', 'latin-prose', 'full-width-latin', 'kana', 'katakana', 'numeric', 'tel', 'email', 'url'; optional):
+    - inputMode (a value equal to: None, 'verbatim', 'latin', 'latin-name', 'latin-prose', 'full-width-latin', 'kana', 'katakana', 'numeric', 'tel', 'email', 'url'; default 'verbatim'):
         Provides a hint to the browser as to the type of data that might
         be entered by the user while editing the element or its contents.
 
-    - autoComplete (string; optional):
+    - autoComplete (string; default 'off'):
         This attribute indicates whether the value of the control can be
         automatically completed by the browser.
 
-    - readOnly (boolean | a value equal to: 'readOnly', 'readonly', 'READONLY'; optional):
+    - readOnly (boolean; optional):
         This attribute indicates that the user cannot modify the value of
         the control. The value of the attribute is irrelevant. If you need
         read-write access to the input value, do not add the \"readonly\"
@@ -74,7 +70,7 @@ class Input(Component):
         - it is enabled by a boolean or 'readOnly'. Alternative
         capitalizations `readonly` & `READONLY` are also acccepted.
 
-    - required (a value equal to: 'required', 'REQUIRED' | boolean; optional):
+    - required (boolean; optional):
         This attribute specifies that the user must fill in a value before
         submitting a form. It cannot be used when the type attribute is
         hidden, image, or a button type (submit, reset, or button). The
@@ -83,13 +79,13 @@ class Input(Component):
         is enabled by a boolean or 'required'. Alternative capitalizations
         `REQUIRED` are also acccepted.
 
-    - autoFocus (a value equal to: 'autoFocus', 'autofocus', 'AUTOFOCUS' | boolean; optional):
+    - autoFocus (boolean; optional):
         The element should be automatically focused after the page loaded.
         autoFocus is an HTML boolean attribute - it is enabled by a
         boolean or 'autoFocus'. Alternative capitalizations `autofocus` &
         `AUTOFOCUS` are also acccepted.
 
-    - disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional):
+    - disabled (boolean; optional):
         If True, the input is disabled and can't be clicked on. disabled
         is an HTML boolean attribute - it is enabled by a boolean or
         'disabled'. Alternative capitalizations `DISABLED`.
@@ -107,7 +103,7 @@ class Input(Component):
         than one value. This attribute applies when the type attribute is
         set to email or file, otherwise it is ignored.
 
-    - spellCheck (a value equal to: 'true', 'false' | boolean; optional):
+    - spellCheck (boolean; optional):
         Setting the value of this attribute to True indicates that the
         element needs to have its spelling and grammar checked. The value
         default indicates that the element is to act according to a
@@ -206,14 +202,9 @@ class Input(Component):
         not be entirely visible even if size is defined to at least x.
 
     - className (string; optional):
-        The class of the input element.
+        Additional CSS class for the root DOM node.
 
-    - id (string; optional):
-        The ID of this component, used to identify dash components in
-        callbacks. The ID needs to be unique across all of the components
-        in an app.
-
-    - persistence (boolean | string | number; optional):
+    - persistence (string | number | boolean; optional):
         Used to allow user interactions in this component to be persisted
         when the component - or the page - is refreshed. If `persisted` is
         truthy and hasn't changed from its previous value, a `value` that
@@ -221,16 +212,23 @@ class Input(Component):
         long as the new `value` also matches what was given originally.
         Used in conjunction with `persistence_type`.
 
-    - persisted_props (list of a value equal to: 'value's; default ['value']):
+    - persisted_props (boolean | number | string | dict | list; default [PersistedProps.value]):
         Properties whose user interactions will persist after refreshing
         the component or the page. Since only `value` is allowed this prop
         can normally be ignored.
 
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; default PersistenceTypes.local):
         Where persisted user changes will be stored: memory: only kept in
         memory, reset on page refresh. local: window.localStorage, data is
         kept after the browser quit. session: window.sessionStorage, data
-        is cleared once the browser quit."""
+        is cleared once the browser quit.
+
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
+
+    - componentPath (boolean | number | string | dict | list; optional)"""
 
     _children_props: typing.List[str] = []
     _base_nodes = ["children"]
@@ -242,6 +240,7 @@ class Input(Component):
         value: typing.Optional[typing.Union[str, NumberType]] = None,
         type: typing.Optional[
             Literal[
+                None,
                 "text",
                 "number",
                 "password",
@@ -253,12 +252,13 @@ class Input(Component):
                 "hidden",
             ]
         ] = None,
-        debounce: typing.Optional[typing.Union[bool, NumberType]] = None,
+        debounce: typing.Optional[typing.Union[NumberType, bool]] = None,
         placeholder: typing.Optional[typing.Union[str, NumberType]] = None,
-        n_submit: typing.Optional[NumberType] = None,
-        n_submit_timestamp: typing.Optional[NumberType] = None,
+        n_submit: typing.Optional[typing.Union[NumberType]] = None,
+        n_submit_timestamp: typing.Optional[typing.Union[NumberType]] = None,
         inputMode: typing.Optional[
             Literal[
+                None,
                 "verbatim",
                 "latin",
                 "latin-name",
@@ -272,43 +272,50 @@ class Input(Component):
                 "url",
             ]
         ] = None,
-        autoComplete: typing.Optional[str] = None,
+        autoComplete: typing.Optional[typing.Union[str]] = None,
         readOnly: typing.Optional[
-            typing.Union[bool, Literal["readOnly", "readonly", "READONLY"]]
+            typing.Union[
+                bool, Literal["readOnly"], Literal["readonly"], Literal["READONLY"]
+            ]
         ] = None,
         required: typing.Optional[
-            typing.Union[Literal["required", "REQUIRED"], bool]
+            typing.Union[bool, Literal["required"], Literal["REQUIRED"]]
         ] = None,
         autoFocus: typing.Optional[
-            typing.Union[Literal["autoFocus", "autofocus", "AUTOFOCUS"], bool]
+            typing.Union[
+                bool, Literal["autoFocus"], Literal["autofocus"], Literal["AUTOFOCUS"]
+            ]
         ] = None,
         disabled: typing.Optional[
-            typing.Union[Literal["disabled", "DISABLED"], bool]
+            typing.Union[bool, Literal["disabled"], Literal["DISABLED"]]
         ] = None,
-        list: typing.Optional[str] = None,
-        multiple: typing.Optional[bool] = None,
+        list: typing.Optional[typing.Union[str]] = None,
+        multiple: typing.Optional[typing.Union[bool]] = None,
         spellCheck: typing.Optional[
-            typing.Union[Literal["true", "false"], bool]
+            typing.Union[bool, Literal["true"], Literal["false"]]
         ] = None,
-        name: typing.Optional[str] = None,
+        name: typing.Optional[typing.Union[str]] = None,
         min: typing.Optional[typing.Union[str, NumberType]] = None,
         max: typing.Optional[typing.Union[str, NumberType]] = None,
         step: typing.Optional[typing.Union[str, NumberType]] = None,
         minLength: typing.Optional[typing.Union[str, NumberType]] = None,
         maxLength: typing.Optional[typing.Union[str, NumberType]] = None,
-        pattern: typing.Optional[str] = None,
-        selectionStart: typing.Optional[str] = None,
-        selectionEnd: typing.Optional[str] = None,
-        selectionDirection: typing.Optional[str] = None,
-        n_blur: typing.Optional[NumberType] = None,
-        n_blur_timestamp: typing.Optional[NumberType] = None,
-        size: typing.Optional[str] = None,
+        pattern: typing.Optional[typing.Union[str]] = None,
+        selectionStart: typing.Optional[typing.Union[str]] = None,
+        selectionEnd: typing.Optional[typing.Union[str]] = None,
+        selectionDirection: typing.Optional[typing.Union[str]] = None,
+        n_blur: typing.Optional[typing.Union[NumberType]] = None,
+        n_blur_timestamp: typing.Optional[typing.Union[NumberType]] = None,
+        size: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
-        className: typing.Optional[str] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -342,10 +349,11 @@ class Input(Component):
             "size",
             "style",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
@@ -379,10 +387,11 @@ class Input(Component):
             "size",
             "style",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

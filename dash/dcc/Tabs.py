@@ -17,13 +17,11 @@ NumberType = typing.Union[
 
 class Tabs(Component):
     """A Tabs component.
-    A Dash component that lets you render pages with tabs - the Tabs component's children
-    can be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold
-    children components that will be that tab's content.
+
 
     Keyword arguments:
 
-    - children (list of a list of or a singular dash component, string or numbers | a list of or a singular dash component, string or number; optional):
+    - children (a list of or a singular dash component, string or number; optional):
         Array that holds Tab components.
 
     - id (string; optional):
@@ -32,10 +30,9 @@ class Tabs(Component):
         in an app.
 
     - className (string; optional):
-        Appends a class to the Tabs container holding the individual Tab
-        components.
+        Additional CSS class for the root DOM node.
 
-    - colors (dict; default {    border: '#d6d6d6',    primary: '#1975FA',    background: '#f9f9f9',}):
+    - colors (dict; default {        border: 'var(--Dash-Stroke-Weak)',        primary: 'var(--Dash-Fill-Interactive-Strong)',        background: 'var(--Dash-Fill-Interactive-Weak)',    }):
         Holds the colors used by the Tabs and Tab components. If you set
         these, you should specify colors for all properties, so: colors: {
         border: '#d6d6d6',    primary: '#1975FA',    background: '#f9f9f9'
@@ -43,17 +40,19 @@ class Tabs(Component):
 
         `colors` is a dict with keys:
 
-        - border (string; optional)
+        - border (string; required)
 
-        - primary (string; optional)
+        - primary (string; required)
 
-        - background (string; optional)
+        - background (string; required)
+
+    - componentPath (boolean | number | string | dict | list; optional)
 
     - content_className (string; optional):
         Appends a class to the Tab content container holding the children
         of the Tab that is selected.
 
-    - content_style (dict; optional):
+    - content_style (boolean | number | string | dict | list; optional):
         Appends (inline) styles to the tab content container holding the
         children of the Tab that is selected.
 
@@ -65,16 +64,16 @@ class Tabs(Component):
         Appends a class to the top-level parent container holding both the
         Tabs container and the content container.
 
-    - parent_style (dict; optional):
+    - parent_style (boolean | number | string | dict | list; optional):
         Appends (inline) styles to the top-level parent container holding
         both the Tabs container and the content container.
 
-    - persisted_props (list of a value equal to: 'value's; default ['value']):
+    - persisted_props (boolean | number | string | dict | list; default [PersistedProps.value]):
         Properties whose user interactions will persist after refreshing
         the component or the page. Since only `value` is allowed this prop
         can normally be ignored.
 
-    - persistence (boolean | string | number; optional):
+    - persistence (string | number | boolean; optional):
         Used to allow user interactions in this component to be persisted
         when the component - or the page - is refreshed. If `persisted` is
         truthy and hasn't changed from its previous value, a `value` that
@@ -82,7 +81,7 @@ class Tabs(Component):
         long as the new `value` also matches what was given originally.
         Used in conjunction with `persistence_type`.
 
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; default PersistenceTypes.local):
         Where persisted user changes will be stored: memory: only kept in
         memory, reset on page refresh. local: window.localStorage, data is
         kept after the browser quit. session: window.sessionStorage, data
@@ -98,32 +97,28 @@ class Tabs(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tabs"
-    Colors = TypedDict(
-        "Colors",
-        {
-            "border": NotRequired[str],
-            "primary": NotRequired[str],
-            "background": NotRequired[str],
-        },
-    )
+    Colors = TypedDict("Colors", {"border": str, "primary": str, "background": str})
 
     def __init__(
         self,
         children: typing.Optional[ComponentType] = None,
-        id: typing.Optional[typing.Union[str, dict]] = None,
-        value: typing.Optional[str] = None,
-        className: typing.Optional[str] = None,
-        content_className: typing.Optional[str] = None,
-        parent_className: typing.Optional[str] = None,
+        value: typing.Optional[typing.Union[str]] = None,
+        content_className: typing.Optional[typing.Union[str]] = None,
+        parent_className: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
-        parent_style: typing.Optional[dict] = None,
-        content_style: typing.Optional[dict] = None,
-        vertical: typing.Optional[bool] = None,
-        mobile_breakpoint: typing.Optional[NumberType] = None,
-        colors: typing.Optional["Colors"] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        parent_style: typing.Optional[typing.Any] = None,
+        content_style: typing.Optional[typing.Any] = None,
+        vertical: typing.Optional[typing.Union[bool]] = None,
+        mobile_breakpoint: typing.Optional[typing.Union[NumberType]] = None,
+        colors: typing.Optional[typing.Union["Colors"]] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -131,6 +126,7 @@ class Tabs(Component):
             "id",
             "className",
             "colors",
+            "componentPath",
             "content_className",
             "content_style",
             "mobile_breakpoint",
@@ -149,6 +145,7 @@ class Tabs(Component):
             "id",
             "className",
             "colors",
+            "componentPath",
             "content_className",
             "content_style",
             "mobile_breakpoint",

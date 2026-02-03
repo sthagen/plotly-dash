@@ -59,6 +59,14 @@ class Upload(Component):
     - disabled (boolean; default False):
         Enable/disable the upload component entirely.
 
+    - enable_folder_selection (boolean; default False):
+        Enable folder selection in the file picker dialog. When True with
+        multiple=True, the file picker allows selecting folders instead of
+        files. Note: When folder selection is enabled, individual files
+        cannot be selected via the button. Use separate Upload components
+        if you need both file and folder selection options. Folder
+        selection is supported in Chrome, Edge, and Opera.
+
     - filename (string | list of strings; optional):
         The name of the file(s) that was(were) uploaded. Note that this
         does not include the path of the file (for security reasons).
@@ -74,7 +82,10 @@ class Upload(Component):
         Minimum file size in bytes.
 
     - multiple (boolean; default False):
-        Allow dropping multiple files.
+        Allow dropping multiple files. When True, enables folder
+        drag-and-drop support. The folder hierarchy is preserved in
+        filenames (e.g., 'folder/subfolder/file.txt'). Note: Folder
+        drag-and-drop is supported in Chrome, Edge, and Opera.
 
     - style_active (dict; default {    borderStyle: 'solid',    borderColor: '#6c6',    backgroundColor: '#eee',}):
         CSS styles to apply while active.
@@ -105,6 +116,7 @@ class Upload(Component):
         max_size: typing.Optional[NumberType] = None,
         min_size: typing.Optional[NumberType] = None,
         multiple: typing.Optional[bool] = None,
+        enable_folder_selection: typing.Optional[bool] = None,
         className: typing.Optional[str] = None,
         className_active: typing.Optional[str] = None,
         className_reject: typing.Optional[str] = None,
@@ -126,6 +138,7 @@ class Upload(Component):
             "contents",
             "disable_click",
             "disabled",
+            "enable_folder_selection",
             "filename",
             "last_modified",
             "max_size",
@@ -148,6 +161,7 @@ class Upload(Component):
             "contents",
             "disable_click",
             "disabled",
+            "enable_folder_selection",
             "filename",
             "last_modified",
             "max_size",

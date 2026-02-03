@@ -22,17 +22,14 @@ class DatePickerSingle(Component):
     """A DatePickerSingle component.
     DatePickerSingle is a tailor made component designed for selecting
     a single day off of a calendar.
-
+    *
     The DatePicker integrates well with the Python datetime module with the
     startDate and endDate being returned in a string format suitable for
     creating datetime objects.
 
-    This component is based off of Airbnb's react-dates react component
-    which can be found here: https://github.com/airbnb/react-dates
-
     Keyword arguments:
 
-    - date (string; optional):
+    - date (boolean | number | string | dict | list; optional):
         Specifies the starting date for the component, best practice is to
         pass value via datetime object.
 
@@ -49,9 +46,9 @@ class DatePickerSingle(Component):
         max_date_allowed that should be disabled. Accepted
         datetime.datetime objects or strings in the format 'YYYY-MM-DD'.
 
-    - placeholder (string; optional):
+    - placeholder (string; default 'Select Date'):
         Text that will be displayed in the input box of the date picker
-        when no date is selected. Default value is 'Start Date'.
+        when no date is selected.
 
     - initial_visible_month (string; optional):
         Specifies the month that is initially presented when the user
@@ -81,7 +78,7 @@ class DatePickerSingle(Component):
         as 'May, 1997' for May 1997 \"MMM, YY\" renders as 'Sep, 97' for
         September 1997.
 
-    - first_day_of_week (a value equal to: 0, 1, 2, 3, 4, 5, 6; default 0):
+    - first_day_of_week (a value equal to: None, 0, 1, 2, 3, 4, 5, 6; default 0):
         Specifies what day is the first day of the week, values must be
         from [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday.
 
@@ -93,7 +90,7 @@ class DatePickerSingle(Component):
         If True the calendar will not close when the user has selected a
         value and will wait until the user clicks off the calendar.
 
-    - calendar_orientation (a value equal to: 'vertical', 'horizontal'; default 'horizontal'):
+    - calendar_orientation (a value equal to: None, 'vertical', 'horizontal'; default 'horizontal'):
         Orientation of calendar, either vertical or horizontal. Valid
         options are 'vertical' or 'horizontal'.
 
@@ -109,7 +106,7 @@ class DatePickerSingle(Component):
         take precedent over 'withPortal' if both are set to True, not
         supported on vertical calendar.
 
-    - day_size (number; default 39):
+    - day_size (number; default 34):
         Size of rendered calendar days, higher number means bigger day
         size and larger calendar overall.
 
@@ -121,31 +118,33 @@ class DatePickerSingle(Component):
         If True, no dates can be selected.
 
     - className (string; optional):
-        Appends a CSS class to the wrapper div component.
+        Additional CSS class for the root DOM node.
+
+    - persistence (string | number | boolean; optional):
+        Used to allow user interactions in this component to be persisted
+        when the component - or the page - is refreshed. If `persisted` is
+        truthy and hasn't changed from its previous value, a `value` that
+        the user has changed while using the app will keep that change, as
+        long as the new `value` also matches what was given originally.
+        Used in conjunction with `persistence_type`.
+
+    - persisted_props (boolean | number | string | dict | list; default [PersistedProps.date]):
+        Properties whose user interactions will persist after refreshing
+        the component or the page. Since only `value` is allowed this prop
+        can normally be ignored.
+
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; default PersistenceTypes.local):
+        Where persisted user changes will be stored: memory: only kept in
+        memory, reset on page refresh. local: window.localStorage, data is
+        kept after the browser quit. session: window.sessionStorage, data
+        is cleared once the browser quit.
 
     - id (string; optional):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
         in an app.
 
-    - persistence (boolean | string | number; optional):
-        Used to allow user interactions in this component to be persisted
-        when the component - or the page - is refreshed. If `persisted` is
-        truthy and hasn't changed from its previous value, a `date` that
-        the user has changed while using the app will keep that change, as
-        long as the new `date` also matches what was given originally.
-        Used in conjunction with `persistence_type`.
-
-    - persisted_props (list of a value equal to: 'date's; default ['date']):
-        Properties whose user interactions will persist after refreshing
-        the component or the page. Since only `date` is allowed this prop
-        can normally be ignored.
-
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
-        Where persisted user changes will be stored: memory: only kept in
-        memory, reset on page refresh. local: window.localStorage, data is
-        kept after the browser quit. session: window.sessionStorage, data
-        is cleared once the browser quit."""
+    - componentPath (boolean | number | string | dict | list; optional)"""
 
     _children_props: typing.List[str] = []
     _base_nodes = ["children"]
@@ -160,30 +159,35 @@ class DatePickerSingle(Component):
         disabled_days: typing.Optional[
             typing.Sequence[typing.Union[str, datetime.datetime]]
         ] = None,
-        placeholder: typing.Optional[str] = None,
+        placeholder: typing.Optional[typing.Union[str]] = None,
         initial_visible_month: typing.Optional[
             typing.Union[str, datetime.datetime]
         ] = None,
-        clearable: typing.Optional[bool] = None,
-        reopen_calendar_on_clear: typing.Optional[bool] = None,
-        display_format: typing.Optional[str] = None,
-        month_format: typing.Optional[str] = None,
-        first_day_of_week: typing.Optional[Literal[0, 1, 2, 3, 4, 5, 6]] = None,
-        show_outside_days: typing.Optional[bool] = None,
-        stay_open_on_select: typing.Optional[bool] = None,
-        calendar_orientation: typing.Optional[Literal["vertical", "horizontal"]] = None,
-        number_of_months_shown: typing.Optional[NumberType] = None,
-        with_portal: typing.Optional[bool] = None,
-        with_full_screen_portal: typing.Optional[bool] = None,
-        day_size: typing.Optional[NumberType] = None,
-        is_RTL: typing.Optional[bool] = None,
-        disabled: typing.Optional[bool] = None,
+        clearable: typing.Optional[typing.Union[bool]] = None,
+        reopen_calendar_on_clear: typing.Optional[typing.Union[bool]] = None,
+        display_format: typing.Optional[typing.Union[str]] = None,
+        month_format: typing.Optional[typing.Union[str]] = None,
+        first_day_of_week: typing.Optional[Literal[None, 0, 1, 2, 3, 4, 5, 6]] = None,
+        show_outside_days: typing.Optional[typing.Union[bool]] = None,
+        stay_open_on_select: typing.Optional[typing.Union[bool]] = None,
+        calendar_orientation: typing.Optional[
+            Literal[None, "vertical", "horizontal"]
+        ] = None,
+        number_of_months_shown: typing.Optional[typing.Union[NumberType]] = None,
+        with_portal: typing.Optional[typing.Union[bool]] = None,
+        with_full_screen_portal: typing.Optional[typing.Union[bool]] = None,
+        day_size: typing.Optional[typing.Union[NumberType]] = None,
+        is_RTL: typing.Optional[typing.Union[bool]] = None,
+        disabled: typing.Optional[typing.Union[bool]] = None,
         style: typing.Optional[typing.Any] = None,
-        className: typing.Optional[str] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["date"]]] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -209,10 +213,11 @@ class DatePickerSingle(Component):
             "disabled",
             "style",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
@@ -238,10 +243,11 @@ class DatePickerSingle(Component):
             "disabled",
             "style",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

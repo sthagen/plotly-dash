@@ -27,21 +27,14 @@ class Slider(Component):
     - max (number; optional):
         Maximum allowed value of the slider.
 
-    - step (number; optional):
+    - step (number; default undefined):
         Value by which increments or decrements are made.
 
-    - marks (dict; optional):
+    - marks (boolean | number | string | dict | list; optional):
         Marks on the slider. The key determines the position (a number),
         and the value determines what will show. If you want to set the
         style of a specific mark point, the value should be an object
         which contains style and label properties.
-
-        `marks` is a dict with strings as keys and values of type string |
-        dict with keys:
-
-        - label (string; optional)
-
-        - style (dict; optional)
 
     - value (number; optional):
         The value of the input.
@@ -60,39 +53,13 @@ class Slider(Component):
         If the value is True, it means a continuous value is included.
         Otherwise, it is an independent value.
 
-    - tooltip (dict; optional):
+    - reverse (boolean; optional):
+        If the value is True, the slider is rendered in reverse.
+
+    - tooltip (boolean | number | string | dict | list; optional):
         Configuration for tooltips describing the current slider value.
 
-        `tooltip` is a dict with keys:
-
-        - always_visible (boolean; optional):
-            Determines whether tooltips should always be visible (as
-            opposed to the default, visible on hover).
-
-        - placement (a value equal to: 'left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'; optional):
-            Determines the placement of tooltips See
-            https://github.com/react-component/tooltip#api top/bottom{*}
-            sets the _origin_ of the tooltip, so e.g. `topLeft` will in
-            reality appear to be on the top right of the handle.
-
-        - template (string; optional):
-            Template string to display the tooltip in. Must contain
-            `{value}`, which will be replaced with either the default
-            string representation of the value or the result of the
-            transform function if there is one.
-
-        - style (dict; optional):
-            Custom style for the tooltip.
-
-        - transform (string; optional):
-            Reference to a function in the `window.dccFunctions`
-            namespace. This can be added in a script in the asset folder.
-            For example, in `assets/tooltip.js`: ``` window.dccFunctions =
-            window.dccFunctions || {}; window.dccFunctions.multByTen =
-            function(value) {     return value * 10; } ``` Then in the
-            component `tooltip={'transform': 'multByTen'}`.
-
-    - updatemode (a value equal to: 'mouseup', 'drag'; default 'mouseup'):
+    - updatemode (a value equal to: None, 'mouseup', 'drag'; default 'mouseup'):
         Determines when the component should update its `value` property.
         If `mouseup` (the default) then the slider will only trigger its
         value when the user has finished dragging the slider. If `drag`,
@@ -107,18 +74,15 @@ class Slider(Component):
     - verticalHeight (number; default 400):
         The height, in px, of the slider if it is vertical.
 
-    - reverse (boolean; default False):
-        If the value is True, it means the component is rendered reverse.
+    - allow_direct_input (boolean; default True):
+        If False, the input elements for directly entering values will be
+        hidden. Only the slider will be visible and it will occupy 100%
+        width of the container.
 
     - className (string; optional):
         Additional CSS class for the root DOM node.
 
-    - id (string; optional):
-        The ID of this component, used to identify dash components in
-        callbacks. The ID needs to be unique across all of the components
-        in an app.
-
-    - persistence (boolean | string | number; optional):
+    - persistence (string | number | boolean; optional):
         Used to allow user interactions in this component to be persisted
         when the component - or the page - is refreshed. If `persisted` is
         truthy and hasn't changed from its previous value, a `value` that
@@ -126,68 +90,54 @@ class Slider(Component):
         long as the new `value` also matches what was given originally.
         Used in conjunction with `persistence_type`.
 
-    - persisted_props (list of a value equal to: 'value's; default ['value']):
+    - persisted_props (boolean | number | string | dict | list; default [PersistedProps.value]):
         Properties whose user interactions will persist after refreshing
         the component or the page. Since only `value` is allowed this prop
         can normally be ignored.
 
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; default PersistenceTypes.local):
         Where persisted user changes will be stored: memory: only kept in
         memory, reset on page refresh. local: window.localStorage, data is
         kept after the browser quit. session: window.sessionStorage, data
-        is cleared once the browser quit."""
+        is cleared once the browser quit.
+
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
+
+    - componentPath (boolean | number | string | dict | list; optional)"""
 
     _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Slider"
-    Marks = TypedDict("Marks", {"label": NotRequired[str], "style": NotRequired[dict]})
-
-    Tooltip = TypedDict(
-        "Tooltip",
-        {
-            "always_visible": NotRequired[bool],
-            "placement": NotRequired[
-                Literal[
-                    "left",
-                    "right",
-                    "top",
-                    "bottom",
-                    "topLeft",
-                    "topRight",
-                    "bottomLeft",
-                    "bottomRight",
-                ]
-            ],
-            "template": NotRequired[str],
-            "style": NotRequired[dict],
-            "transform": NotRequired[str],
-        },
-    )
 
     def __init__(
         self,
-        min: typing.Optional[NumberType] = None,
-        max: typing.Optional[NumberType] = None,
-        step: typing.Optional[NumberType] = None,
-        marks: typing.Optional[
-            typing.Dict[typing.Union[str, float, int], typing.Union[str, "Marks"]]
+        min: typing.Optional[typing.Union[NumberType]] = None,
+        max: typing.Optional[typing.Union[NumberType]] = None,
+        step: typing.Optional[typing.Union[NumberType]] = None,
+        marks: typing.Optional[typing.Any] = None,
+        value: typing.Optional[typing.Union[NumberType]] = None,
+        drag_value: typing.Optional[typing.Union[NumberType]] = None,
+        disabled: typing.Optional[typing.Union[bool]] = None,
+        dots: typing.Optional[typing.Union[bool]] = None,
+        included: typing.Optional[typing.Union[bool]] = None,
+        reverse: typing.Optional[typing.Union[bool]] = None,
+        tooltip: typing.Optional[typing.Any] = None,
+        updatemode: typing.Optional[Literal[None, "mouseup", "drag"]] = None,
+        vertical: typing.Optional[typing.Union[bool]] = None,
+        verticalHeight: typing.Optional[typing.Union[NumberType]] = None,
+        allow_direct_input: typing.Optional[typing.Union[bool]] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
         ] = None,
-        value: typing.Optional[NumberType] = None,
-        drag_value: typing.Optional[NumberType] = None,
-        disabled: typing.Optional[bool] = None,
-        dots: typing.Optional[bool] = None,
-        included: typing.Optional[bool] = None,
-        tooltip: typing.Optional["Tooltip"] = None,
-        updatemode: typing.Optional[Literal["mouseup", "drag"]] = None,
-        vertical: typing.Optional[bool] = None,
-        verticalHeight: typing.Optional[NumberType] = None,
-        reverse: typing.Optional[bool] = None,
-        className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -200,16 +150,18 @@ class Slider(Component):
             "disabled",
             "dots",
             "included",
+            "reverse",
             "tooltip",
             "updatemode",
             "vertical",
             "verticalHeight",
-            "reverse",
+            "allow_direct_input",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
@@ -222,16 +174,18 @@ class Slider(Component):
             "disabled",
             "dots",
             "included",
+            "reverse",
             "tooltip",
             "updatemode",
             "vertical",
             "verticalHeight",
-            "reverse",
+            "allow_direct_input",
             "className",
-            "id",
             "persistence",
             "persisted_props",
             "persistence_type",
+            "id",
+            "componentPath",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

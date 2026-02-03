@@ -18,6 +18,7 @@ NumberType = typing.Union[
 class Textarea(Component):
     """A Textarea component.
     A basic HTML textarea for entering multiline text.
+    *
 
     Keyword arguments:
 
@@ -34,12 +35,14 @@ class Textarea(Component):
         The element should be automatically focused after the page loaded.
 
     - className (string; optional):
-        Often used with CSS to style elements with common properties.
+        Additional CSS class for the root DOM node.
 
-    - cols (string | number; optional):
+    - cols (number; optional):
         Defines the number of columns in a textarea.
 
-    - contentEditable (string | boolean; optional):
+    - componentPath (boolean | number | string | dict | list; optional)
+
+    - contentEditable (boolean; optional):
         Indicates whether the element's content is editable.
 
     - contextMenu (string; optional):
@@ -50,10 +53,10 @@ class Textarea(Component):
         Defines the text direction. Allowed values are ltr (Left-To-Right)
         or rtl (Right-To-Left).
 
-    - disabled (string | boolean; optional):
+    - disabled (boolean; optional):
         Indicates whether the user can interact with the element.
 
-    - draggable (a value equal to: 'true', 'false' | boolean; optional):
+    - draggable (boolean; optional):
         Defines whether the element can be dragged.
 
     - form (string; optional):
@@ -66,10 +69,10 @@ class Textarea(Component):
     - lang (string; optional):
         Defines the language used in the element.
 
-    - maxLength (string | number; optional):
+    - maxLength (number; optional):
         Defines the maximum number of characters allowed in the element.
 
-    - minLength (string | number; optional):
+    - minLength (number; optional):
         Defines the minimum number of characters allowed in the element.
 
     - n_blur (number; default 0):
@@ -78,7 +81,7 @@ class Textarea(Component):
     - n_blur_timestamp (number; default -1):
         Last time the textarea lost focus.
 
-    - n_clicks (number; optional):
+    - n_clicks (number; default 0):
         Number of times the textarea has been clicked.
 
     - n_clicks_timestamp (number; default -1):
@@ -88,12 +91,12 @@ class Textarea(Component):
         Name of the element. For example used by the server to identify
         the fields in form submits.
 
-    - persisted_props (list of a value equal to: 'value's; optional):
+    - persisted_props (boolean | number | string | dict | list; optional):
         Properties whose user interactions will persist after refreshing
         the component or the page. Since only `value` is allowed this prop
         can normally be ignored.
 
-    - persistence (boolean | string | number; optional):
+    - persistence (string | number | boolean; optional):
         Used to allow user interactions in this component to be persisted
         when the component - or the page - is refreshed. If `persisted` is
         truthy and hasn't changed from its previous value, a `value` that
@@ -101,7 +104,7 @@ class Textarea(Component):
         long as the new `value` also matches what was given originally.
         Used in conjunction with `persistence_type`.
 
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; optional):
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; optional):
         Where persisted user changes will be stored: memory: only kept in
         memory, reset on page refresh. local: window.localStorage, data is
         kept after the browser quit. session: window.sessionStorage, data
@@ -110,25 +113,25 @@ class Textarea(Component):
     - placeholder (string; optional):
         Provides a hint to the user of what can be entered in the field.
 
-    - readOnly (boolean | a value equal to: 'readOnly', 'readonly', 'READONLY'; optional):
+    - readOnly (boolean; optional):
         Indicates whether the element can be edited. readOnly is an HTML
         boolean attribute - it is enabled by a boolean or 'readOnly'.
         Alternative capitalizations `readonly` & `READONLY` are also
         acccepted.
 
-    - required (a value equal to: 'required', 'REQUIRED' | boolean; optional):
+    - required (boolean; optional):
         Indicates whether this element is required to fill out or not.
         required is an HTML boolean attribute - it is enabled by a boolean
         or 'required'. Alternative capitalizations `REQUIRED` are also
         acccepted.
 
-    - rows (string | number; optional):
+    - rows (number; optional):
         Defines the number of rows in a text area.
 
-    - spellCheck (a value equal to: 'true', 'false' | boolean; optional):
+    - spellCheck (boolean; optional):
         Indicates whether spell checking is allowed for the element.
 
-    - tabIndex (string | number; optional):
+    - tabIndex (number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
 
@@ -148,45 +151,50 @@ class Textarea(Component):
 
     def __init__(
         self,
-        id: typing.Optional[typing.Union[str, dict]] = None,
-        value: typing.Optional[str] = None,
-        autoFocus: typing.Optional[str] = None,
-        cols: typing.Optional[typing.Union[str, NumberType]] = None,
-        disabled: typing.Optional[typing.Union[str, bool]] = None,
-        form: typing.Optional[str] = None,
-        maxLength: typing.Optional[typing.Union[str, NumberType]] = None,
-        minLength: typing.Optional[typing.Union[str, NumberType]] = None,
-        name: typing.Optional[str] = None,
-        placeholder: typing.Optional[str] = None,
+        value: typing.Optional[typing.Union[str]] = None,
+        autoFocus: typing.Optional[typing.Union[str]] = None,
+        cols: typing.Optional[typing.Union[NumberType]] = None,
+        disabled: typing.Optional[
+            typing.Union[bool, Literal["disabled"], Literal["DISABLED"]]
+        ] = None,
+        form: typing.Optional[typing.Union[str]] = None,
+        maxLength: typing.Optional[typing.Union[NumberType]] = None,
+        minLength: typing.Optional[typing.Union[NumberType]] = None,
+        name: typing.Optional[typing.Union[str]] = None,
+        placeholder: typing.Optional[typing.Union[str]] = None,
         readOnly: typing.Optional[
-            typing.Union[bool, Literal["readOnly", "readonly", "READONLY"]]
+            typing.Union[
+                bool, Literal["readOnly"], Literal["readonly"], Literal["READONLY"]
+            ]
         ] = None,
         required: typing.Optional[
-            typing.Union[Literal["required", "REQUIRED"], bool]
+            typing.Union[bool, Literal["required"], Literal["REQUIRED"]]
         ] = None,
-        rows: typing.Optional[typing.Union[str, NumberType]] = None,
-        wrap: typing.Optional[str] = None,
-        accessKey: typing.Optional[str] = None,
-        className: typing.Optional[str] = None,
-        contentEditable: typing.Optional[typing.Union[str, bool]] = None,
-        contextMenu: typing.Optional[str] = None,
-        dir: typing.Optional[str] = None,
-        draggable: typing.Optional[typing.Union[Literal["true", "false"], bool]] = None,
-        hidden: typing.Optional[str] = None,
-        lang: typing.Optional[str] = None,
-        spellCheck: typing.Optional[
-            typing.Union[Literal["true", "false"], bool]
-        ] = None,
+        rows: typing.Optional[typing.Union[NumberType]] = None,
+        wrap: typing.Optional[typing.Union[str]] = None,
+        accessKey: typing.Optional[typing.Union[str]] = None,
+        contentEditable: typing.Optional[typing.Union[bool]] = None,
+        contextMenu: typing.Optional[typing.Union[str]] = None,
+        dir: typing.Optional[typing.Union[str]] = None,
+        draggable: typing.Optional[typing.Union[bool]] = None,
+        hidden: typing.Optional[typing.Union[str]] = None,
+        lang: typing.Optional[typing.Union[str]] = None,
+        spellCheck: typing.Optional[typing.Union[bool]] = None,
         style: typing.Optional[typing.Any] = None,
-        tabIndex: typing.Optional[typing.Union[str, NumberType]] = None,
-        title: typing.Optional[str] = None,
-        n_blur: typing.Optional[NumberType] = None,
-        n_blur_timestamp: typing.Optional[NumberType] = None,
-        n_clicks: typing.Optional[NumberType] = None,
-        n_clicks_timestamp: typing.Optional[NumberType] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        tabIndex: typing.Optional[typing.Union[NumberType]] = None,
+        title: typing.Optional[typing.Union[str]] = None,
+        n_blur: typing.Optional[typing.Union[NumberType]] = None,
+        n_blur_timestamp: typing.Optional[typing.Union[NumberType]] = None,
+        n_clicks: typing.Optional[typing.Union[NumberType]] = None,
+        n_clicks_timestamp: typing.Optional[typing.Union[NumberType]] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -195,6 +203,7 @@ class Textarea(Component):
             "autoFocus",
             "className",
             "cols",
+            "componentPath",
             "contentEditable",
             "contextMenu",
             "dir",
@@ -231,6 +240,7 @@ class Textarea(Component):
             "autoFocus",
             "className",
             "cols",
+            "componentPath",
             "contentEditable",
             "contextMenu",
             "dir",

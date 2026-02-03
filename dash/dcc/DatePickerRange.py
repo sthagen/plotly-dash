@@ -20,25 +20,81 @@ NumberType = typing.Union[
 
 class DatePickerRange(Component):
     """A DatePickerRange component.
-    DatePickerRange is a tailor made component designed for selecting
-    timespan across multiple days off of a calendar.
-
+    DatePickerRange is designed for selecting a timespan across multiple days off
+    of a calendar.
+    *
     The DatePicker integrates well with the Python datetime module with the
     startDate and endDate being returned in a string format suitable for
     creating datetime objects.
-
-    This component is based off of Airbnb's react-dates react component
-    which can be found here: https://github.com/airbnb/react-dates
+    *
 
     Keyword arguments:
 
-    - start_date (string; optional):
+    - start_date (boolean | number | string | dict | list; optional):
         Specifies the starting date for the component. Accepts
         datetime.datetime objects or strings in the format 'YYYY-MM-DD'.
 
-    - end_date (string; optional):
+    - end_date (boolean | number | string | dict | list; optional):
         Specifies the ending date for the component. Accepts
         datetime.datetime objects or strings in the format 'YYYY-MM-DD'.
+
+    - minimum_nights (number; optional):
+        Specifies a minimum number of nights that must be selected between
+        the startDate and the endDate.
+
+    - updatemode (a value equal to: None, 'singledate', 'bothdates'; default 'singledate'):
+        Determines when the component should update its value. If
+        `bothdates`, then the DatePicker will only trigger its value when
+        the user has finished picking both dates. If `singledate`, then
+        the DatePicker will update its value as one date is picked.
+
+    - start_date_placeholder_text (string; optional):
+        Text that will be displayed in the first input box of the date
+        picker when no date is selected. Default value is 'Start Date'.
+
+    - end_date_placeholder_text (string; optional):
+        Text that will be displayed in the second input box of the date
+        picker when no date is selected. Default value is 'End Date'.
+
+    - start_date_id (string; optional):
+        The HTML element ID of the start date input field. Not used by
+        Dash, only by CSS.
+
+    - end_date_id (string; optional):
+        The HTML element ID of the end date input field. Not used by Dash,
+        only by CSS.
+
+    - id (string; optional):
+        The ID of this component, used to identify dash components in
+        callbacks. The ID needs to be unique across all of the components
+        in an app.
+
+    - componentPath (boolean | number | string | dict | list; optional)
+
+    - className (string; optional):
+        Additional CSS class for the root DOM node.
+
+    - persistence (string | number | boolean; optional):
+        Used to allow user interactions in this component to be persisted
+        when the component - or the page - is refreshed. If `persisted` is
+        truthy and hasn't changed from its previous value, a `value` that
+        the user has changed while using the app will keep that change, as
+        long as the new `value` also matches what was given originally.
+        Used in conjunction with `persistence_type`.
+
+    - persisted_props (boolean | number | string | dict | list; default [PersistedProps.start_date, PersistedProps.end_date]):
+        Properties whose user interactions will persist after refreshing
+        the component or the page. Since only `value` is allowed this prop
+        can normally be ignored.
+
+    - persistence_type (a value equal to: None, 'local', 'session', 'memory'; default PersistenceTypes.local):
+        Where persisted user changes will be stored: memory: only kept in
+        memory, reset on page refresh. local: window.localStorage, data is
+        kept after the browser quit. session: window.sessionStorage, data
+        is cleared once the browser quit.
+
+    - disabled (boolean; default False):
+        If True, no dates can be selected.
 
     - min_date_allowed (string; optional):
         Specifies the lowest selectable date for the component. Accepts
@@ -53,23 +109,9 @@ class DatePickerRange(Component):
         max_date_allowed that should be disabled. Accepted
         datetime.datetime objects or strings in the format 'YYYY-MM-DD'.
 
-    - minimum_nights (number; optional):
-        Specifies a minimum number of nights that must be selected between
-        the startDate and the endDate.
-
-    - updatemode (a value equal to: 'singledate', 'bothdates'; default 'singledate'):
-        Determines when the component should update its value. If
-        `bothdates`, then the DatePicker will only trigger its value when
-        the user has finished picking both dates. If `singledate`, then
-        the DatePicker will update its value as one date is picked.
-
-    - start_date_placeholder_text (string; optional):
-        Text that will be displayed in the first input box of the date
-        picker when no date is selected. Default value is 'Start Date'.
-
-    - end_date_placeholder_text (string; optional):
-        Text that will be displayed in the second input box of the date
-        picker when no date is selected. Default value is 'End Date'.
+    - placeholder (string; optional):
+        Text that will be displayed in the input box of the date picker
+        when no date is selected.
 
     - initial_visible_month (string; optional):
         Specifies the month that is initially presented when the user
@@ -99,11 +141,11 @@ class DatePickerRange(Component):
         as 'May, 1997' for May 1997 \"MMM, YY\" renders as 'Sep, 97' for
         September 1997.
 
-    - first_day_of_week (a value equal to: 0, 1, 2, 3, 4, 5, 6; default 0):
+    - first_day_of_week (a value equal to: None, 0, 1, 2, 3, 4, 5, 6; default 0):
         Specifies what day is the first day of the week, values must be
         from [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday.
 
-    - show_outside_days (boolean; optional):
+    - show_outside_days (boolean; default False):
         If True the calendar will display days that rollover into the next
         month.
 
@@ -111,11 +153,11 @@ class DatePickerRange(Component):
         If True the calendar will not close when the user has selected a
         value and will wait until the user clicks off the calendar.
 
-    - calendar_orientation (a value equal to: 'vertical', 'horizontal'; default 'horizontal'):
+    - calendar_orientation (a value equal to: None, 'vertical', 'horizontal'; default 'horizontal'):
         Orientation of calendar, either vertical or horizontal. Valid
         options are 'vertical' or 'horizontal'.
 
-    - number_of_months_shown (number; default 1):
+    - number_of_months_shown (number; default 2):
         Number of calendar months that are shown when calendar is opened.
 
     - with_portal (boolean; default False):
@@ -127,51 +169,13 @@ class DatePickerRange(Component):
         take precedent over 'withPortal' if both are set to True, not
         supported on vertical calendar.
 
-    - day_size (number; default 39):
+    - day_size (number; default 34):
         Size of rendered calendar days, higher number means bigger day
         size and larger calendar overall.
 
     - is_RTL (boolean; default False):
         Determines whether the calendar and days operate from left to
-        right or from right to left.
-
-    - disabled (boolean; default False):
-        If True, no dates can be selected.
-
-    - start_date_id (string; optional):
-        The HTML element ID of the start date input field. Not used by
-        Dash, only by CSS.
-
-    - end_date_id (string; optional):
-        The HTML element ID of the end date input field. Not used by Dash,
-        only by CSS.
-
-    - className (string; optional):
-        Appends a CSS class to the wrapper div component.
-
-    - id (string; optional):
-        The ID of this component, used to identify dash components in
-        callbacks. The ID needs to be unique across all of the components
-        in an app.
-
-    - persistence (boolean | string | number; optional):
-        Used to allow user interactions in this component to be persisted
-        when the component - or the page - is refreshed. If `persisted` is
-        truthy and hasn't changed from its previous value, any
-        `persisted_props` that the user has changed while using the app
-        will keep those changes, as long as the new prop value also
-        matches what was given originally. Used in conjunction with
-        `persistence_type` and `persisted_props`.
-
-    - persisted_props (list of a value equal to: 'start_date', 'end_date's; default ['start_date', 'end_date']):
-        Properties whose user interactions will persist after refreshing
-        the component or the page.
-
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
-        Where persisted user changes will be stored: memory: only kept in
-        memory, reset on page refresh. local: window.localStorage, data is
-        kept after the browser quit. session: window.sessionStorage, data
-        is cleared once the browser quit."""
+        right or from right to left."""
 
     _children_props: typing.List[str] = []
     _base_nodes = ["children"]
@@ -182,52 +186,67 @@ class DatePickerRange(Component):
         self,
         start_date: typing.Optional[typing.Union[str, datetime.datetime]] = None,
         end_date: typing.Optional[typing.Union[str, datetime.datetime]] = None,
+        minimum_nights: typing.Optional[typing.Union[NumberType]] = None,
+        updatemode: typing.Optional[Literal[None, "singledate", "bothdates"]] = None,
+        start_date_placeholder_text: typing.Optional[typing.Union[str]] = None,
+        end_date_placeholder_text: typing.Optional[typing.Union[str]] = None,
+        start_date_id: typing.Optional[typing.Union[str]] = None,
+        end_date_id: typing.Optional[typing.Union[str]] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        componentPath: typing.Optional[typing.Any] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
+        persisted_props: typing.Optional[typing.Any] = None,
+        persistence_type: typing.Optional[
+            Literal[None, "local", "session", "memory"]
+        ] = None,
+        disabled: typing.Optional[typing.Union[bool]] = None,
+        style: typing.Optional[typing.Any] = None,
         min_date_allowed: typing.Optional[typing.Union[str, datetime.datetime]] = None,
         max_date_allowed: typing.Optional[typing.Union[str, datetime.datetime]] = None,
         disabled_days: typing.Optional[
             typing.Sequence[typing.Union[str, datetime.datetime]]
         ] = None,
-        minimum_nights: typing.Optional[NumberType] = None,
-        updatemode: typing.Optional[Literal["singledate", "bothdates"]] = None,
-        start_date_placeholder_text: typing.Optional[str] = None,
-        end_date_placeholder_text: typing.Optional[str] = None,
-        initial_visible_month: typing.Optional[str] = None,
-        clearable: typing.Optional[bool] = None,
-        reopen_calendar_on_clear: typing.Optional[bool] = None,
-        display_format: typing.Optional[str] = None,
-        month_format: typing.Optional[str] = None,
-        first_day_of_week: typing.Optional[Literal[0, 1, 2, 3, 4, 5, 6]] = None,
-        show_outside_days: typing.Optional[bool] = None,
-        stay_open_on_select: typing.Optional[bool] = None,
-        calendar_orientation: typing.Optional[Literal["vertical", "horizontal"]] = None,
-        number_of_months_shown: typing.Optional[NumberType] = None,
-        with_portal: typing.Optional[bool] = None,
-        with_full_screen_portal: typing.Optional[bool] = None,
-        day_size: typing.Optional[NumberType] = None,
-        is_RTL: typing.Optional[bool] = None,
-        disabled: typing.Optional[bool] = None,
-        start_date_id: typing.Optional[str] = None,
-        end_date_id: typing.Optional[str] = None,
-        style: typing.Optional[typing.Any] = None,
-        className: typing.Optional[str] = None,
-        id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
-        persisted_props: typing.Optional[
-            typing.Sequence[Literal["start_date", "end_date"]]
+        placeholder: typing.Optional[typing.Union[str]] = None,
+        initial_visible_month: typing.Optional[typing.Union[str]] = None,
+        clearable: typing.Optional[typing.Union[bool]] = None,
+        reopen_calendar_on_clear: typing.Optional[typing.Union[bool]] = None,
+        display_format: typing.Optional[typing.Union[str]] = None,
+        month_format: typing.Optional[typing.Union[str]] = None,
+        first_day_of_week: typing.Optional[Literal[None, 0, 1, 2, 3, 4, 5, 6]] = None,
+        show_outside_days: typing.Optional[typing.Union[bool]] = None,
+        stay_open_on_select: typing.Optional[typing.Union[bool]] = None,
+        calendar_orientation: typing.Optional[
+            Literal[None, "vertical", "horizontal"]
         ] = None,
-        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        number_of_months_shown: typing.Optional[typing.Union[NumberType]] = None,
+        with_portal: typing.Optional[typing.Union[bool]] = None,
+        with_full_screen_portal: typing.Optional[typing.Union[bool]] = None,
+        day_size: typing.Optional[typing.Union[NumberType]] = None,
+        is_RTL: typing.Optional[typing.Union[bool]] = None,
         **kwargs
     ):
         self._prop_names = [
             "start_date",
             "end_date",
-            "min_date_allowed",
-            "max_date_allowed",
-            "disabled_days",
             "minimum_nights",
             "updatemode",
             "start_date_placeholder_text",
             "end_date_placeholder_text",
+            "start_date_id",
+            "end_date_id",
+            "id",
+            "componentPath",
+            "className",
+            "persistence",
+            "persisted_props",
+            "persistence_type",
+            "disabled",
+            "style",
+            "min_date_allowed",
+            "max_date_allowed",
+            "disabled_days",
+            "placeholder",
             "initial_visible_month",
             "clearable",
             "reopen_calendar_on_clear",
@@ -242,27 +261,29 @@ class DatePickerRange(Component):
             "with_full_screen_portal",
             "day_size",
             "is_RTL",
-            "disabled",
-            "start_date_id",
-            "end_date_id",
-            "style",
-            "className",
-            "id",
-            "persistence",
-            "persisted_props",
-            "persistence_type",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
             "start_date",
             "end_date",
-            "min_date_allowed",
-            "max_date_allowed",
-            "disabled_days",
             "minimum_nights",
             "updatemode",
             "start_date_placeholder_text",
             "end_date_placeholder_text",
+            "start_date_id",
+            "end_date_id",
+            "id",
+            "componentPath",
+            "className",
+            "persistence",
+            "persisted_props",
+            "persistence_type",
+            "disabled",
+            "style",
+            "min_date_allowed",
+            "max_date_allowed",
+            "disabled_days",
+            "placeholder",
             "initial_visible_month",
             "clearable",
             "reopen_calendar_on_clear",
@@ -277,15 +298,6 @@ class DatePickerRange(Component):
             "with_full_screen_portal",
             "day_size",
             "is_RTL",
-            "disabled",
-            "start_date_id",
-            "end_date_id",
-            "style",
-            "className",
-            "id",
-            "persistence",
-            "persisted_props",
-            "persistence_type",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

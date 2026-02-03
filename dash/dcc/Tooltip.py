@@ -29,7 +29,7 @@ class Tooltip(Component):
         callbacks. The ID needs to be unique across all of the components
         in an app.
 
-    - background_color (string; default 'white'):
+    - background_color (string; default 'var(--Dash-Fill-Inverse-Strong)'):
         Color of the tooltip background, as a CSS color string.
 
     - bbox (dict; optional):
@@ -38,21 +38,21 @@ class Tooltip(Component):
 
         `bbox` is a dict with keys:
 
-        - x0 (number; optional)
+        - x0 (number; required)
 
-        - y0 (number; optional)
+        - y0 (number; required)
 
-        - x1 (number; optional)
+        - x1 (number; required)
 
-        - y1 (number; optional)
+        - y1 (number; required)
 
-    - border_color (string; default '#d6d6d6'):
+    - border_color (string; default 'var(--Dash-Stroke-Weak)'):
         Color of the tooltip border, as a CSS color string.
 
     - className (string; default ''):
         The class of the tooltip.
 
-    - direction (a value equal to: 'top', 'right', 'bottom', 'left'; default 'right'):
+    - direction (a value equal to: None, 'top', 'right', 'bottom', 'left'; default 'right'):
         The side of the `bbox` on which the tooltip should open.
 
     - loading_text (string; default 'Loading...'):
@@ -76,29 +76,25 @@ class Tooltip(Component):
     _namespace = "dash_core_components"
     _type = "Tooltip"
     Bbox = TypedDict(
-        "Bbox",
-        {
-            "x0": NotRequired[NumberType],
-            "y0": NotRequired[NumberType],
-            "x1": NotRequired[NumberType],
-            "y1": NotRequired[NumberType],
-        },
+        "Bbox", {"x0": NumberType, "y0": NumberType, "x1": NumberType, "y1": NumberType}
     )
 
     def __init__(
         self,
         children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        className: typing.Optional[str] = None,
+        className: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
-        bbox: typing.Optional["Bbox"] = None,
-        show: typing.Optional[bool] = None,
-        direction: typing.Optional[Literal["top", "right", "bottom", "left"]] = None,
-        border_color: typing.Optional[str] = None,
-        background_color: typing.Optional[str] = None,
-        loading_text: typing.Optional[str] = None,
-        zindex: typing.Optional[NumberType] = None,
-        targetable: typing.Optional[bool] = None,
+        bbox: typing.Optional[typing.Union["Bbox"]] = None,
+        show: typing.Optional[typing.Union[bool]] = None,
+        direction: typing.Optional[
+            Literal[None, "top", "right", "bottom", "left"]
+        ] = None,
+        border_color: typing.Optional[typing.Union[str]] = None,
+        background_color: typing.Optional[typing.Union[str]] = None,
+        loading_text: typing.Optional[typing.Union[str]] = None,
+        zindex: typing.Optional[typing.Union[NumberType]] = None,
+        targetable: typing.Optional[typing.Union[bool]] = None,
         **kwargs
     ):
         self._prop_names = [
